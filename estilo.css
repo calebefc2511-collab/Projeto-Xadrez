@@ -1,0 +1,59 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root{
+            --fundo-principal: #ffffff;
+            --texto: #222222;
+            --texto-inverso: #ffffff;
+            --destaque: #b58863;
+            --destaque-inverso: #f0d9b5;
+            --fundo-card: #ffffff;
+        }
+
+        html, body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            line-height: 1.5em;
+            background-color: var(--fundo-principal);
+            color: var(--texto);
+        }
+
+        header{
+            position: sticky;
+            background-color: var(--destaque);
+            padding: 20px;
+            display: flex;
+            flex-flow: column nowrap;
+            border-radius: 0 0 15px 15px;
+            gap: 10px;
+        }
+
+        div.cabecalho{
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        span.dot{
+            width: 15px;
+            height: 15px;
+            border-radius: 2px;
+            background: var(--texto); 
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+
+        footer{
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            background-color: var(--destaque);
+            padding: 10px;
+        }
+
+        span.nome-destacado{
+            color: var(--destaque-inverso);
+        }
