@@ -46,6 +46,22 @@
             flex-shrink: 0;
         }
 
+        main{
+            display: grid;
+            grid-template-columns: 1fr 90% 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        section {
+            grid-column: 2;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+        }
+
         footer{
             display: flex;
             flex-flow: row nowrap;
