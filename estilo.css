@@ -99,7 +99,6 @@
             backdrop-filter: blur(var(--vidro-blur));
             -webkit-backdrop-filter: blur(var(--vidro-blur));
             box-shadow: 0 4px 30px var(--vidro-sombra);
-            border: 1px solid var(--vidro-borda);
             padding: 10px;
         }
 
