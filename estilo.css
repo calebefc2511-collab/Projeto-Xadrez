@@ -133,6 +133,13 @@ div.casa img {
     overflow: hidden;
 }
 
+section#tela {
+    width: min(100%, 420px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 div#botoes {
     width: min(100%, 420px);
     display: flex;
@@ -167,6 +174,33 @@ div.botao img {
     overflow: hidden;
 }
 
+
+div#moves{
+    height: min(100vw, 420px);
+    background-color: var(--destaque);
+    border-radius: 15px;
+    padding: 1px;
+}
+
+div#titulo-moves{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--vidro-borda);
+    padding: 10px;
+    border-radius: 15px;
+}
+
+div#titulo-moves h2{
+    color: var(--destaque-inverso);
+}
+
+div#lista-moves{
+    padding: 6px;
+    border-radius: 15px;
+}
+
 footer {
     display: flex;
     flex-flow: row nowrap;
@@ -183,4 +217,32 @@ footer {
 
 span.nome-destacado {
     color: var(--texto);
+}
+
+@media (min-width: 600px) {
+    main {
+        flex-flow: row nowrap;
+        align-items: center;
+        gap: 25px;
+    }
+
+    section#tabuleiro {
+        width: min(100vw, 660px);
+        max-width: 660px;
+    }
+
+    section#tela {
+        width: min(100vw, 586px);
+        max-width: 586px;
+    }
+
+    div#botoes,
+    div#moves {
+        width: 100%;
+    }
+
+    div#moves {
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
 }
