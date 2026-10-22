@@ -34,10 +34,8 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     line-height: 1.5em;
     min-height: 100vh;
-
     display: flex;
     flex-direction: column;
-
     background-color: var(--fundo-principal);
     background-image: linear-gradient(
         135deg,
@@ -86,17 +84,19 @@ span.dot {
 main {
     flex: 1;
     display: flex;
+    flex-flow: column;
     justify-content: center;
     align-items: center;
     min-width: 0;
-    padding: 16px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    gap: 25px;
 }
 
 section#tabuleiro {
     width: min(100%, 420px);
     aspect-ratio: 1 / 1;
-    border: 10px solid var(--borda-tabuleiro);
-    border-radius: 15px;
+    border-radius: 2px;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
@@ -133,6 +133,40 @@ div.casa img {
     overflow: hidden;
 }
 
+div#botoes {
+    width: min(100%, 420px);
+    display: flex;
+    flex-flow: row nowrap;
+    background-color: var(--destaque);
+    border-radius: 15px;
+    padding: 6px;
+    gap: 5px;
+    min-height: 65px;
+}
+
+div.botao {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--vidro-fundo);
+    color: var(--texto-inverso);
+    backdrop-filter: blur(var(--vidro-blur));
+    -webkit-backdrop-filter: blur(var(--vidro-blur));
+    box-shadow: 0 4px 30px var(--vidro-sombra);
+    border: 1px solid var(--vidro-borda);
+    border-radius: 5px;
+}
+
+div.botao img {
+    display: block;
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+    overflow: hidden;
+}
+
 footer {
     display: flex;
     flex-flow: row nowrap;
@@ -149,10 +183,4 @@ footer {
 
 span.nome-destacado {
     color: var(--texto);
-}
-
-@media (min-width: 600px) {
-    section#tabuleiro {
-        width: min(100%, 600px);
-    }
 }
