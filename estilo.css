@@ -152,7 +152,7 @@ div.casa p.coordenada-coluna {
 }
 
 div.casa p.coordenada-linha {
-    bottom: 2px;
+    bottom: 4px;
     right: 4px;
     top: auto;
     left: auto;
@@ -294,7 +294,7 @@ span.nome-destacado {
     }
 
     div.casa p.coordenada-linha {
-        bottom: 4px;
+        bottom: 6px;
         right: 6px;
         top: auto;
         left: auto;
