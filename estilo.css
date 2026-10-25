@@ -104,37 +104,67 @@ section#tabuleiro {
 }
 
 div.casa {
+    position: relative;
     min-width: 0;
     min-height: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
 }
 
 div.casa.clara {
     background-color: var(--casa-clara);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
 }
 
 div.casa.escura {
     background-color: var(--casa-escura);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
 }
 
 div.casa img {
     display: block;
     object-fit: contain;
     overflow: hidden;
-    transform: scale(1.5);
-
+    transform: scale(1.7);
 }
 
 div.casa img:hover {
     cursor: pointer;
+}
+
+div.casa p {
+    position: absolute;
+    line-height: 1;
+    margin: 0;
+    font-size: 10px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+div.casa p.coordenada-coluna {
+    top: 2px;
+    left: 4px;
+}
+
+div.casa p.coordenada-linha {
+    bottom: 2px;
+    right: 4px;
+    top: auto;
+    left: auto;
+}
+
+p.coordenada-clara{
+    color: var(--casa-escura);
+}
+
+p.coordenada-escura {
+    color: var(--casa-clara);
+
 }
 
 section#tela {
@@ -252,5 +282,21 @@ span.nome-destacado {
         height: auto;
         flex: 1;
         min-height: 0;
+    }
+
+    div.casa p {
+    font-size: 15px;
+    }
+
+    div.casa p.coordenada-coluna {
+        top: 4px;
+        left: 6px;
+    }
+
+    div.casa p.coordenada-linha {
+        bottom: 4px;
+        right: 6px;
+        top: auto;
+        left: auto;
     }
 }
