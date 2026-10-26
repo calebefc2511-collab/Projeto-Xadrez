@@ -285,18 +285,6 @@ span.nome-destacado {
     }
 
     div.casa p {
-    font-size: 15px;
-    }
-
-    div.casa p.coordenada-coluna {
-        top: 4px;
-        left: 6px;
-    }
-
-    div.casa p.coordenada-linha {
-        bottom: 4px;
-        right: 6px;
-        top: auto;
-        left: auto;
+    font-size: 13px;
     }
 }
