@@ -1,3 +1,5 @@
+/* JavaScript Projeto-Xadrez */
+
 /* Variáveis */
 
 const p11 = document.getElementById("pos11");
