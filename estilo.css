@@ -83,7 +83,7 @@ span.dot {
 main {
     flex: 1;
     display: flex;
-    flex-flow: column;
+    flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
     min-width: 0;
@@ -116,14 +116,17 @@ div.casa {
 
 div.casa.clara {
     background-color: var(--casa-clara);
-    display: flex;
-    align-items: flex-end;
 }
 
 div.casa.escura {
     background-color: var(--casa-escura);
-    display: flex;
-    align-items: flex-end;
+}
+
+div.casa img {
+    display: block;
+    object-fit: contain;
+    overflow: hidden;
+    transform: scale(1.7);
 }
 
 div.casa:hover {
@@ -132,29 +135,44 @@ div.casa:hover {
 
 div.casa p {
     position: absolute;
-    margin: 0;
     line-height: 1;
-    font-size: 13px;
+    margin: 0;
+    font-size: 10px;
     z-index: 2;
     pointer-events: none;
 }
 
 div.casa p.coordenada-coluna {
-    top: 4px;
+    top: 2px;
     left: 4px;
 }
 
 div.casa p.coordenada-linha {
-    bottom: 4px;
+    bottom: 2px;
     right: 4px;
+    top: auto;
+    left: auto;
 }
 
-p.coordenada-clara{
+p.coordenada-clara {
     color: var(--casa-escura);
 }
 
 p.coordenada-escura {
     color: var(--casa-clara);
+}
+
+span.indicador-movimento {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--vidro-sombra);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px var(--vidro-sombra);
+    pointer-events: none;
 }
 
 section#tela {
@@ -190,19 +208,19 @@ div.botao {
     border-radius: 5px;
 }
 
-div.botao:hover{
+div.botao:hover {
     border: 1px solid var(--destaque-inverso);
     cursor: pointer;
 }
 
-div#moves{
+div#moves {
     height: min(100vw, 420px);
     background-color: var(--destaque);
     border-radius: 15px;
     padding: 1px;
 }
 
-div#titulo-moves{
+div#titulo-moves {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
@@ -212,11 +230,11 @@ div#titulo-moves{
     border-radius: 15px;
 }
 
-div#titulo-moves h2{
+div#titulo-moves h2 {
     color: var(--destaque-inverso);
 }
 
-div#lista-moves{
+div#lista-moves {
     padding: 6px;
     border-radius: 15px;
 }
@@ -236,7 +254,7 @@ footer {
 }
 
 span.nome-destacado {
-    color: var(--texto);
+    color: var(--destaque-inverso);
 }
 
 @media (min-width: 600px) {
@@ -275,6 +293,6 @@ span.nome-destacado {
     }
 
     div.casa p {
-    font-size: 13px;
+        font-size: 13px;
     }
 }
