@@ -5,11 +5,11 @@ const posicoes = new Array(8);
 for (let i = 0; i <= 7; i++)
 {
 	posicoes[i] = new Array(8);
-	px = i + 1;
+	py = i + 1;
 	for (let j = 0; j <= 7; j++)
 	{
-		py = j + 1;
-		posicoes[i][j] = document.getElementById("pos"+px+py);
+		px = j + 1;
+		posicoes[i][j] = document.getElementById("pos"+py+px);
 	}
 }
 
@@ -38,10 +38,10 @@ const Y = 1;
 
 let posPec = new Array(2);
 
-let posPec[P] = new Array(8);
-let posPec[B] = new Array(8);
+posPec[P] = new Array(8);
+posPec[B] = new Array(8);
 
-for (let i = 0; i < 2; i++)
+for (let i = 0; i < 8; i++)
 {
 	posPec[P][i] = new Array(8);
 	posPec[B][i] = new Array(8);
@@ -161,32 +161,138 @@ function clicouP77() { principal(7,7);}
 
 /* Principal função */
 
-function principal (posX, posY)
+function principal (posY, posX)
 {
 	if (movendo)
 	{
-		if (movimentos[posX][posY])
+		if (movimentos[posY][posX])
 		{
-			
+			console.log("Moveu!");
+			limpar(movimentos);
 		}
+		
+		movendo = false;
+		
 	}
 	else
 	{
-		if (posicoes[posX][posY].style.backgroundImage === "")
+		if (posicoes[posY][posX].style.backgroundImage === "")
 		{
 			return;
 		}
 		
 		if (cor === "brancas")
 		{
-			
+			if (posPec[B][posY][posX])
+			{
+				if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_BRANCO)) {
+					peao   (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_BRANCO)) {
+					cavalo (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_BRANCA)) {
+					torre  (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_BRANCO)) {
+					bispo  (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_BRANCA)) {
+					rainha (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(REI_BRANCO)) {
+					rei    (posX, posY, posicoes, movimentos, posPec);
+				}
+			}
 		}
 		else
 		{
-			
+			if (posPec[P][posY][posX])
+			{
+				if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_PRETO)) {
+					peao   (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_PRETO)) {
+					cavalo (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_PRETA)) {
+					torre  (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_PRETO)) {
+					bispo  (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_PRETA)) {
+					rainha (posX, posY, posicoes, movimentos, posPec);
+				}
+				if (posicoes[posY][posX].style.backgroundImage.includes(REI_PRETO)) {
+					rei    (posX, posY, posicoes, movimentos, posPec);
+				}
+			}
+		}
+		
+		posSel[X] = posX;
+		posSel[Y] = posY;
+		// Armazena onde selecionou
+		
+		movendo = true;
+		
+	}
+}
+
+function limpar (matriz)
+{
+	let i, j;
+	
+	for (i = 0; i<8; i++)
+	{
+		for (j = 0; j<8; j++)
+		{
+			matriz[i][j] = false;
 		}
 		
 	}
+}
+
+function peao   (posX, posY, posicoes, movimentos, posPec)
+{
+	
+}
+function cavalo (posX, posY, posicoes, movimentos, posPec)
+{
+
+}
+function torre  (posX, posY, posicoes, movimentos, posPec)
+{
+
+}
+
+function cavalo (posX, posY, posicoes, movimentos, posPec)
+{
+	
+}
+
+function bispo  (posX, posY, posicoes, movimentos, posPec)
+{
+	
+}
+
+function rainha (posX, posY, posicoes, movimentos, posPec)
+{
+	
+}
+
+function rei    (posX, posY, posicoes, movimentos, posPec)
+{
+	
+}
+
+function condicao(posX, posY, posicoes, posPec, cor)
+{
+	if (! ( ( posX >= 0 && posX <= 7 ) && ( posY >= 0 && posY <= 7 ) ) ) 
+	{
+		return false;
+	}
+	return !(posPec[P][posY][posX] || posPec[B][posY][posX]) || posPec[P][posY][posX] && cor === "brancas" || posPec[B][posY][posX] && cor === "pretas";
 }
 
 /* Eventos */
@@ -262,3 +368,11 @@ posicoes[7][4].addEventListener('click', clicouP74);
 posicoes[7][5].addEventListener('click', clicouP75);
 posicoes[7][6].addEventListener('click', clicouP76);
 posicoes[7][7].addEventListener('click', clicouP77);
+
+function mostrarBolinha(casa) {
+    const span = document.createElement("span");
+
+    span.classList.add("indicador-movimento");
+
+    casa.appendChild(span);
+}

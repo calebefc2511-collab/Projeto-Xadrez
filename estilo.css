@@ -8,12 +8,13 @@
     --fundo-principal: #302820;
     --texto: #2B2118;
     --texto-inverso: #FFF8ED;
-
     --destaque: #8B5E3C;
     --destaque-inverso: #E8C9A0;
+    --fundo-card: #F8F1E5;
 
     --casa-clara: #F0D9B5;
     --casa-escura: #B58863;
+    --borda-tabuleiro: #5C3D2E;
 
     --fundo-gradiente-1: #302820;
     --fundo-gradiente-2: #654438;
@@ -109,21 +110,27 @@ div.casa {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 170%;
 }
 
 div.casa.clara {
     background-color: var(--casa-clara);
     display: flex;
+    justify-content: center;
     align-items: flex-end;
 }
 
 div.casa.escura {
     background-color: var(--casa-escura);
     display: flex;
+    justify-content: center;
     align-items: flex-end;
+}
+
+div.casa img {
+    display: block;
+    object-fit: contain;
+    overflow: hidden;
+    transform: scale(1.7);
 }
 
 div.casa:hover {
@@ -132,21 +139,23 @@ div.casa:hover {
 
 div.casa p {
     position: absolute;
-    margin: 0;
     line-height: 1;
-    font-size: 13px;
+    margin: 0;
+    font-size: 10px;
     z-index: 2;
     pointer-events: none;
 }
 
 div.casa p.coordenada-coluna {
-    top: 4px;
+    top: 2px;
     left: 4px;
 }
 
 div.casa p.coordenada-linha {
-    bottom: 4px;
+    bottom: 2px;
     right: 4px;
+    top: auto;
+    left: auto;
 }
 
 p.coordenada-clara{
@@ -157,6 +166,18 @@ p.coordenada-escura {
     color: var(--casa-clara);
 }
 
+span.indicador-movimento {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--vidro-sombra);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px var(--vidro-sombra);
+    pointer-events: none;
+}
 section#tela {
     width: min(100%, 420px);
     display: flex;
@@ -236,7 +257,7 @@ footer {
 }
 
 span.nome-destacado {
-    color: var(--texto);
+    color: var(--destaque-inverso);
 }
 
 @media (min-width: 600px) {
