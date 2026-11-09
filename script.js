@@ -368,11 +368,3 @@ posicoes[7][4].addEventListener('click', clicouP74);
 posicoes[7][5].addEventListener('click', clicouP75);
 posicoes[7][6].addEventListener('click', clicouP76);
 posicoes[7][7].addEventListener('click', clicouP77);
-
-function mostrarBolinha(casa) {
-    const span = document.createElement("span");
-
-    span.classList.add("indicador-movimento");
-
-    casa.appendChild(span);
-}
