@@ -253,6 +253,34 @@ function limpar (matriz)
 	}
 }
 
+function mostrarBolinha(casa) {
+    const span = document.createElement("span");
+
+    span.classList.add("indicador-movimento");
+
+    casa.appendChild(span);
+}
+
+function mover(posX, posY, posSel, posPec, posicoes) {
+
+	posicoes[posY][posX].style.backgroundImage = posicoes[posSel[Y]][posSel[X]].style.backgroundImage;
+	posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "";
+
+	if (cor === "brancas")
+	{
+		posPec[B][posY][posX] = true;
+		posPec[P][posY][posX] = false;
+		posPec[B][posSel[Y]][posSel[X]] = false;
+	}
+
+	if (cor === "pretas")
+	{
+		posPec[B][posY][posX] = false;
+		posPec[P][posY][posX] = true;
+		posPec[P][posSel[Y]][posSel[X]] = false;
+	}	
+}
+
 function peao   (posX, posY, posicoes, movimentos, posPec)
 {
 	
