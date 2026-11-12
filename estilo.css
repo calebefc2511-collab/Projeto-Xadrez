@@ -222,6 +222,11 @@ button.preto-promocao {
     cursor: pointer;
 }
 
+button.branco-promocao:hover,
+button.preto-promocao:hover {
+    border: 1px solid var(--destaque-inverso);
+}
+
 section#tela {
     width: min(100%, 420px);
     display: flex;
@@ -301,7 +306,7 @@ footer {
 }
 
 span.nome-destacado {
-    color: var(--texto);
+    color: var(--casa-escura);
 }
 
 span.indicador-movimento {
