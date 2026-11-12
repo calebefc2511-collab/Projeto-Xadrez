@@ -94,12 +94,21 @@ for (let i = 0; i<2; i++)
 	}
 }
 
-let promo = new Array(2);
-
-promo[B] = false;
-promo[P] = false;
+let promo = false;
 
 let movendo = false;
+
+let posRei = new Array(2);
+
+posRei[B] = new Array(2);
+posRei[P] = new Array(2);
+
+posRei[B][X] = 4;
+posRei[P][X] = 4;
+posRei[B][Y] = 7;
+posRei[P][Y] = 0; 
+
+
 let cor = "brancas";
 
 /* Funções */
@@ -180,23 +189,17 @@ function clicouP77() { principal(7,7);}
 
 function principal (posY, posX)
 {
+	if (promo)
+	{
+		return;
+	}
+	
 	if (movendo)
 	{
 		if (movimentos[posY][posX])
 		{
 			mover(posX, posY, posSel, posPec, posicoes);
-			posMov(posY, posX, posSel, cor, enPassant, promo, posicoes);
-			
-			if (promo[B])
-			{
-				promover();
-				promo[B] = false;
-			}
-			if (promo[P])
-			{
-				promover();
-				promo[P] = false;
-			}
+			posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei);
 			
 			cor = cor === "brancas" ? "pretas" : "brancas";
 			// Inverte o turno
@@ -209,80 +212,75 @@ function principal (posY, posX)
 		limpar(movimentos);
 		
 	}
-	if (!movendo)
+
+	if (posicoes[posY][posX].style.backgroundImage === "")
 	{
-		if (posicoes[posY][posX].style.backgroundImage === "")
+		return;
+	}
+	
+	if (cor === "brancas")
+	{
+		if (posPec[B][posY][posX])
 		{
-			return;
-		}
-		
-		if (cor === "brancas")
-		{
-			if (posPec[B][posY][posX])
-			{
-				if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_BRANCO)) {
-					peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_BRANCO)) {
-					cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_BRANCA)) {
-					torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_BRANCO)) {
-					bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_BRANCA)) {
-					rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(REI_BRANCO)) {
-					rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				
-				posSel[X] = posX;
-				posSel[Y] = posY;
-				// Armazena onde selecionou
-				
-				mostrarBolinha(posicoes, movimentos);
-				
-				movendo = true;
-				
+			if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_BRANCO)) {
+				peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
 			}
-
-		}
-		else
-		{
-			if (posPec[P][posY][posX])
-			{
-				if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_PRETO)) {
-					peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_PRETO)) {
-					cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_PRETA)) {
-					torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_PRETO)) {
-					bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_PRETA)) {
-					rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				if (posicoes[posY][posX].style.backgroundImage.includes(REI_PRETO)) {
-					rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-				}
-				
-				posSel[X] = posX;
-				posSel[Y] = posY;
-				// Armazena onde selecionou
-				
-				mostrarBolinha(posicoes, movimentos);
-				
-				movendo = true;
-
+			if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_BRANCO)) {
+				cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_BRANCA)) {
+				torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_BRANCO)) {
+				bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_BRANCA)) {
+				rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(REI_BRANCO)) {
+				rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
 			}
 			
+			posSel[X] = posX;
+			posSel[Y] = posY;
+			// Armazena onde selecionou
+			
+			mostrarBolinha(posicoes, movimentos);
+			
+			movendo = true;
+			
+		}
+	}
+	else
+	{
+		if (posPec[P][posY][posX])
+		{
+			if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_PRETO)) {
+				peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_PRETO)) {
+				cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_PRETA)) {
+				torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_PRETO)) {
+				bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_PRETA)) {
+				rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			if (posicoes[posY][posX].style.backgroundImage.includes(REI_PRETO)) {
+				rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+			}
+			
+			posSel[X] = posX;
+			posSel[Y] = posY;
+			// Armazena onde selecionou
+			
+			mostrarBolinha(posicoes, movimentos);
+			
+			movendo = true;
 		}
 		
 	}
@@ -336,20 +334,6 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 
 	posicoes[posY][posX].style.backgroundImage = posicoes[posSel[Y]][posSel[X]].style.backgroundImage;
 	posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "";
-
-	if (cor === "brancas")
-	{
-		posPec[B][posY][posX] = true;
-		posPec[P][posY][posX] = false;
-		posPec[B][posSel[Y]][posSel[X]] = false;
-	}
-
-	if (cor === "pretas")
-	{
-		posPec[B][posY][posX] = false;
-		posPec[P][posY][posX] = true;
-		posPec[P][posSel[Y]][posSel[X]] = false;
-	}	
 	
 	if (posicoes[posY][posX].style.backgroundImage.includes("peao"))
 	{
@@ -369,12 +353,25 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 				posicoes[posY - 1][posX].style.backgroundImage = "";
 			}
 		}
-		
 	}
+
+	if (cor === "brancas")
+	{
+		posPec[B][posY][posX] = true;
+		posPec[P][posY][posX] = false;
+		posPec[B][posSel[Y]][posSel[X]] = false;
+	}
+
+	if (cor === "pretas")
+	{
+		posPec[B][posY][posX] = false;
+		posPec[P][posY][posX] = true;
+		posPec[P][posSel[Y]][posSel[X]] = false;
+	}	
 
 }
 
-function posMov(posY, posX, posSel, cor, enPassant, promo, posicoes)
+function posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei)
 {
 	for (let i = 0; i < 8; i++)
 	{
@@ -396,7 +393,7 @@ function posMov(posY, posX, posSel, cor, enPassant, promo, posicoes)
 			// Abaixo, promoção branca
 			if (posY === 0)
 			{
-				promo[B] = true;
+				promo = true;
 			}
 		}
 		else
@@ -410,19 +407,35 @@ function posMov(posY, posX, posSel, cor, enPassant, promo, posicoes)
 			// Abaixo, promoção preta
 			if (posY === 7)
 			{
-				promo[P] = true;
+				promo = true;
 			}
 		}	
 	}
 	
+	if (posicoes[posY][posX].style.backgroundImage.includes("rei"))
+	{
+		if (cor === "brancas")
+		{
+			posRei[B][X] = posX;
+			posRei[B][Y] = posY;
+		}
+		if (cor === "pretas")
+		{
+			posRei[P][X] = posX;
+			posRei[P][Y] = posY;
+		}
+	}
+	
 }
 
-function promover ()
+function promover (posY, posX, cor)
 {
-	console.log("ok");
+	cor = cor === "brancas" ? "pretas" : "brancas";
+	// Inverte a cor para voltar o turno para quem de fato está promovendo
+	
 }
 
-function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 	
 	let NposX = posX;
@@ -532,7 +545,7 @@ function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 	}
 
 }
-function cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+function cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 
 	let NposX = posX;
@@ -604,7 +617,7 @@ function cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 	}
 
 }
-function torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+function torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 
 	let NposX = posX;
@@ -717,7 +730,7 @@ function torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 
 }
 
-function bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+function bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 
 	let NposX = posX;
@@ -815,15 +828,15 @@ function bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 
 }
 
-function rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+function rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 	
-	torre(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
-	bispo(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
+	torre(posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
+	bispo(posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei);
 
 }
 
-function rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+function rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 	
 	let NposX = posX;
@@ -1056,3 +1069,4 @@ posicoes[7][4].addEventListener('click', clicouP74);
 posicoes[7][5].addEventListener('click', clicouP75);
 posicoes[7][6].addEventListener('click', clicouP76);
 posicoes[7][7].addEventListener('click', clicouP77);
+
