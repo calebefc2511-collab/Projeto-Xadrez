@@ -1,4 +1,4 @@
-/* Elementos */
+ /* Elementos */
 
 const posicoes = new Array(8);
 
@@ -81,6 +81,23 @@ for (let i = 0; i < 8; i++)
 		movimentos[i][j] = false;
 	}
 }
+
+let enPassant = new Array(2);
+
+for (let i = 0; i<2; i++)
+{
+	enPassant[i] = new Array(8);
+	
+	for (let j = 0; j<8; j++)
+	{
+		enPassant[i][j] = false;
+	}
+}
+
+let promo = new Array(2);
+
+promo[B] = false;
+promo[P] = false;
 
 let movendo = false;
 let cor = "brancas";
@@ -167,14 +184,32 @@ function principal (posY, posX)
 	{
 		if (movimentos[posY][posX])
 		{
-			console.log("Moveu!");
-			limpar(movimentos);
+			mover(posX, posY, posSel, posPec, posicoes);
+			posMov(posY, posX, posSel, cor, enPassant, promo, posicoes);
+			
+			if (promo[B])
+			{
+				promover();
+				promo[B] = false;
+			}
+			if (promo[P])
+			{
+				promover();
+				promo[P] = false;
+			}
+			
+			cor = cor === "brancas" ? "pretas" : "brancas";
+			// Inverte o turno
 		}
+		
+		limparBolinha(posicoes);
 		
 		movendo = false;
 		
+		limpar(movimentos);
+		
 	}
-	else
+	if (!movendo)
 	{
 		if (posicoes[posY][posX].style.backgroundImage === "")
 		{
@@ -186,57 +221,72 @@ function principal (posY, posX)
 			if (posPec[B][posY][posX])
 			{
 				if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_BRANCO)) {
-					peao   (posX, posY, posicoes, movimentos, posPec);
+					peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_BRANCO)) {
-					cavalo (posX, posY, posicoes, movimentos, posPec);
+					cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_BRANCA)) {
-					torre  (posX, posY, posicoes, movimentos, posPec);
+					torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_BRANCO)) {
-					bispo  (posX, posY, posicoes, movimentos, posPec);
+					bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_BRANCA)) {
-					rainha (posX, posY, posicoes, movimentos, posPec);
+					rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(REI_BRANCO)) {
-					rei    (posX, posY, posicoes, movimentos, posPec);
+					rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
+				
+				posSel[X] = posX;
+				posSel[Y] = posY;
+				// Armazena onde selecionou
+				
+				mostrarBolinha(posicoes, movimentos);
+				
+				movendo = true;
+				
 			}
+
 		}
 		else
 		{
 			if (posPec[P][posY][posX])
 			{
 				if (posicoes[posY][posX].style.backgroundImage.includes(PEAO_PRETO)) {
-					peao   (posX, posY, posicoes, movimentos, posPec);
+					peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(CAVALO_PRETO)) {
-					cavalo (posX, posY, posicoes, movimentos, posPec);
+					cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(TORRE_PRETA)) {
-					torre  (posX, posY, posicoes, movimentos, posPec);
+					torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(BISPO_PRETO)) {
-					bispo  (posX, posY, posicoes, movimentos, posPec);
+					bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(RAINHA_PRETA)) {
-					rainha (posX, posY, posicoes, movimentos, posPec);
+					rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
 				if (posicoes[posY][posX].style.backgroundImage.includes(REI_PRETO)) {
-					rei    (posX, posY, posicoes, movimentos, posPec);
+					rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				}
+				
+				posSel[X] = posX;
+				posSel[Y] = posY;
+				// Armazena onde selecionou
+				
+				mostrarBolinha(posicoes, movimentos);
+				
+				movendo = true;
+
 			}
+			
 		}
 		
-		posSel[X] = posX;
-		posSel[Y] = posY;
-		// Armazena onde selecionou
-		
-		movendo = true;
-		
 	}
+	
 }
 
 function limpar (matriz)
@@ -253,12 +303,33 @@ function limpar (matriz)
 	}
 }
 
-function mostrarBolinha(casa) {
-    const span = document.createElement("span");
+function mostrarBolinha(posicoes, movimentos) {
+	for (let i = 0; i < 8; i++)
+	{
+		for (let j = 0; j < 8; j++)
+		{
+			if (movimentos[i][j])
+			{
+				const casa = posicoes[i][j];
+				const span = document.createElement("span");
 
-    span.classList.add("indicador-movimento");
+    			span.classList.add("indicador-movimento");
+				
+				casa.appendChild(span);
+			}
+		}
+	}
+}
 
-    casa.appendChild(span);
+function limparBolinha(posicoes) {
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            const span = posicoes[i][j].querySelector(".indicador-movimento");
+            if(span){
+			span.remove();
+			}
+        }
+    }
 }
 
 function mover(posX, posY, posSel, posPec, posicoes) {
@@ -279,39 +350,593 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 		posPec[P][posY][posX] = true;
 		posPec[P][posSel[Y]][posSel[X]] = false;
 	}	
+	
+	if (posicoes[posY][posX].style.backgroundImage.includes("peao"))
+	{
+		if (cor === "brancas")
+		{
+			if (posX != posSel[X] && !(posPec[P][posY][posX]))
+			{
+				posPec[P][posY + 1][posX] = false;
+				posicoes[posY + 1][posX].style.backgroundImage = "";
+			}
+		}
+		if (cor === "pretas")
+		{
+			if (posX != posSel[X] && !(posPec[B][posY][posX]))
+			{
+				posPec[P][posY - 1][posX] = false;
+				posicoes[posY - 1][posX].style.backgroundImage = "";
+			}
+		}
+		
+	}
+
 }
 
-function peao   (posX, posY, posicoes, movimentos, posPec)
+function posMov(posY, posX, posSel, cor, enPassant, promo, posicoes)
 {
+	for (let i = 0; i < 8; i++)
+	{
+		enPassant[P][i] = false;
+		enPassant[B][i] = false;
+	}
+	
+	if (posicoes[posY][posX].style.backgroundImage.includes("peao"))
+	{
+		
+		if (cor === "brancas")
+		{			
+			// Abaixo, En passant Branco
+			if (posSel[Y] - posY === 2)
+			{
+				enPassant[P][posX] = true;
+			}
+			
+			// Abaixo, promoção branca
+			if (posY === 0)
+			{
+				promo[B] = true;
+			}
+		}
+		else
+		{
+			// Abaixo, En passant Preto
+			if (posY - posSel[Y] === 2)
+			{
+				enPassant[B][posX] = true;
+			}
+			
+			// Abaixo, promoção preta
+			if (posY === 7)
+			{
+				promo[P] = true;
+			}
+		}	
+	}
 	
 }
-function cavalo (posX, posY, posicoes, movimentos, posPec)
-{
 
-}
-function torre  (posX, posY, posicoes, movimentos, posPec)
+function promover ()
 {
-
+	console.log("ok");
 }
 
-function cavalo (posX, posY, posicoes, movimentos, posPec)
+function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 {
 	
+	let NposX = posX;
+	let NposY = posY;
+	let i;
+
+	if(cor === "pretas")
+	{
+
+		if(condicaoPeao(NposX, NposY+1, posPec, cor))
+		{
+
+			movimentos[NposY+1][NposX] = true;
+
+			if(posY === 1)
+			{
+
+				{
+
+					if(condicaoPeao(NposX, NposY+2, posPec, cor))
+
+						movimentos[NposY+2][NposX] = true;
+
+				}
+
+			}
+
+		}
+
+		for(i = -1; i<=1; i++)
+		{
+
+			if(i === 0)
+
+				continue;
+
+			NposY = posY + 1;
+			NposX = posX + i;
+
+			if(condicaoPeaoDgn(NposX, NposY, posPec, cor))
+	
+				movimentos[NposY][NposX] = true;
+				
+			if (posY === 4)
+			{
+				
+				if (NposX >= 0 && NposX <= 7 && enPassant[P][NposX])
+				{
+					movimentos[NposY][NposX] = true;
+				}
+				
+			}
+			
+		}
+	
+	}
+
+	if(cor === "brancas")
+	{
+
+		if(condicaoPeao(NposX, NposY-1, posPec, cor))
+		{
+
+			movimentos[NposY-1][NposX] = true;
+
+			if(posY === 6)
+			{
+
+				{
+
+					if(condicaoPeao(NposX, NposY-2, posPec, cor) )
+
+						movimentos[NposY-2][NposX] = true;
+
+				}
+
+			}
+
+		}
+
+		for(i = -1; i<=1; i++)
+		{
+
+			if(i === 0)
+
+				continue;
+
+			NposY = posY - 1;
+			NposX = posX + i;
+
+			if(condicaoPeaoDgn(NposX, NposY, posPec, cor))
+
+				movimentos[NposY][NposX] = true;
+				
+			if (posY === 3)
+			{
+				
+				if (NposX >= 0 && NposY <= 7 && enPassant[B][NposX])
+				{
+					movimentos[NposY][NposX] = true;
+				}
+				
+			}
+
+		}
+
+	}
+
+}
+function cavalo (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+{
+
+	let NposX = posX;
+	let NposY = posY;
+	let i;
+	let j;
+
+	for(j = 1; j<=4; j++)
+	{
+
+		for(i = -1; i<=1; i++)
+		{
+
+			if(i === 0)
+
+				continue;
+
+			switch(j)
+			{
+
+				case 1:
+					
+					NposX = posX + i;
+					NposY = posY + 2;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					break;
+
+				case 2:
+
+					NposX = posX + i;
+					NposY = posY - 2;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					break;
+
+				case 3:
+
+					NposX = posX + 2;
+					NposY = posY + i;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					break;
+
+				case 4:
+
+					NposX = posX - 2;
+					NposY = posY + i;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					break;
+
+			}
+
+		}
+
+	}
+
+}
+function torre  (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+{
+
+	let NposX = posX;
+	let NposY;
+	let i;
+
+	for(i=0; i<4; i++)
+	{
+
+		switch(i)
+		{
+
+			case 0:
+
+				NposY = posY;
+				for(j = 0; j<8; j++)
+				{
+
+					++NposY;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					else
+
+						break;
+
+					if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+						break;
+
+				}
+
+			break;
+
+			case 1:
+
+				NposY = posY;
+				for(j = 0; j<8; j++)
+				{
+
+					--NposY;
+
+					if(condicao(NposX, NposY, posicoes,posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					else
+
+						break;
+
+					if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+						break;
+
+				}
+
+			break;
+
+			case 2:
+
+				NposY = posY;
+				for(j = 0; j<8; j++)
+				{
+
+					++NposX;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					else
+
+						break;
+
+					if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+						break;
+
+				}
+
+			break;
+
+			case 3:
+
+				NposX = posX;
+				for(j = 0; j<8; j++)
+				{
+
+					--NposX;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+					else
+
+						break;
+
+					if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+						break;
+
+				}
+
+		}
+
+	}
+
 }
 
-function bispo  (posX, posY, posicoes, movimentos, posPec)
+function bispo  (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 {
-	
+
+	let NposX = posX;
+	let NposY = posY;
+	let i;
+
+	for(i = 0; i<8; i++)
+	{
+
+		NposX++;
+		NposY++;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true; 
+
+		else
+
+			break;
+
+		if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+			break;
+
+	}
+
+	NposX = posX;
+	NposY = posY;
+
+	for(i = 0; i<8; i++)
+	{
+
+		NposX--;
+		NposY++;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true;
+
+		else
+
+			break;
+
+		if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+			break;
+
+	}
+
+	NposX = posX;
+	NposY = posY;
+
+	for(i = 0; i<8; i++)
+	{
+
+		NposX++;
+		NposY--;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true;
+
+		else
+
+			break;
+
+		if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+			break;
+
+	}
+
+	NposX = posX;
+	NposY = posY;
+
+	for(i = 0; i<8; i++)
+	{
+
+		NposX--;
+		NposY--;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true;
+
+		else
+
+			break;
+
+		if(posPec[P][NposY][NposX] || posPec[B][NposY][NposX])
+
+			break;
+
+	}
+
 }
 
-function rainha (posX, posY, posicoes, movimentos, posPec)
+function rainha (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 {
 	
+	torre(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
+	bispo(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
+
 }
 
-function rei    (posX, posY, posicoes, movimentos, posPec)
+function rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 {
 	
+	let NposX = posX;
+	let NposY = posY;
+	let i;
+
+	//Diagonal
+
+		NposX++;
+		NposY++;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true;          
+
+	NposX = posX;
+	NposY = posY;
+
+		NposX--;
+		NposY++;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))     
+		
+			movimentos[NposY][NposX] = true;
+
+	NposX = posX;
+	NposY = posY;
+
+		NposX++;
+		NposY--;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true;
+
+	NposX = posX;
+	NposY = posY;
+		NposX--;
+		NposY--;
+		
+		if(condicao(NposX, NposY, posicoes, posPec, cor))
+		
+			movimentos[NposY][NposX] = true;
+		
+	//Lados da torre
+
+	for(i=0; i<4; i++)
+	{
+
+		NposX = posX;
+		NposY = posY;
+
+		switch(i)
+		{
+
+			case 0:
+			{
+				NposY = posY;
+
+
+					++NposY;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+			
+			}
+
+			break;
+
+			case 1:
+			{
+				
+				NposY = posY;
+
+					--NposY;
+
+					if(condicao(NposX, NposY, posicoes,posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+
+			}			
+			break;
+
+			case 2:
+			{
+				NposY = posY;
+
+					++NposX;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+			}
+
+			break;
+
+			case 3:
+
+				NposX = posX;
+
+					--NposX;
+
+					if(condicao(NposX, NposY, posicoes, posPec, cor))
+
+						movimentos[NposY][NposX] = true;
+
+		}
+
+	}
+
 }
 
 function condicao(posX, posY, posicoes, posPec, cor)
@@ -321,6 +946,41 @@ function condicao(posX, posY, posicoes, posPec, cor)
 		return false;
 	}
 	return !(posPec[P][posY][posX] || posPec[B][posY][posX]) || posPec[P][posY][posX] && cor === "brancas" || posPec[B][posY][posX] && cor === "pretas";
+}
+
+function condicaoPeao(posX, posY, posPec, cor)
+{
+	if (! ( ( posX >= 0 && posX <= 7 ) && ( posY >= 0 && posY <= 7 ) ) ) 
+	{
+		return false;
+	}
+
+
+	if(posPec[B][posY][posX] || posPec[P][posY][posX])
+
+		return false;
+
+	return true;		
+
+}
+
+function condicaoPeaoDgn(posX, posY, posPec, cor)
+{
+	if (! ( ( posX >= 0 && posX <= 7 ) && ( posY >= 0 && posY <= 7 ) ) ) 
+	{
+		return false;
+	}
+
+	if(cor === "brancas" && posPec[P][posY][posX] === true)
+
+		return true;
+
+	if(cor === "pretas" && posPec[B][posY][posX] === true)
+
+		return true;
+
+	return false;
+
 }
 
 /* Eventos */
