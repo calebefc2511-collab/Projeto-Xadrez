@@ -28,6 +28,18 @@ const RAINHA_BRANCA	= "rainha-branco.png";
 const REI_PRETO		= "rei-preto.png";
 const REI_BRANCO	= "rei-branco.png";
 
+const promotBranco  = document.getElementById("promot-branco");
+const promotPreto   = document.getElementById("promot-preto");
+
+const promoRainhaBr = document.getElementById("promot-rainhabr");
+const promoRainhaPr = document.getElementById("promot-rainhapr");
+const promoTorreBr  = document.getElementById("promot-torrebr");
+const promoTorrePr  = document.getElementById("promot-torrepr");
+const promoBispoBr  = document.getElementById("promot-bispobr");
+const promoBispoPr  = document.getElementById("promot-bispopr");
+const promoCavaloBr = document.getElementById("promot-cavalobr");
+const promoCavaloPr = document.getElementById("promot-cavalopr");
+
 const P = 0;
 const B = 1;
 
@@ -428,12 +440,19 @@ function posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei)
 	
 }
 
-function promover (posY, posX, cor)
+function ativarPromo (cor)
 {
 	cor = cor === "brancas" ? "pretas" : "brancas";
 	// Inverte a cor para voltar o turno para quem de fato está promovendo
-	
+
+	if(cor === "brancas"){
+		promotBranco.style.display = "flex";
+	}
+	if(cor === "pretas"){
+		promotPreto.style.display = "flex";
+	}		
 }
+
 
 function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
