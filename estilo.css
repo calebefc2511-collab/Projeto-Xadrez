@@ -188,7 +188,7 @@ div#promot-preto {
     display: none;
     z-index: 100;
     flex-flow: column nowrap;
-    width: 12.5%;
+    width: 12%;
     height: 50%;
     background-color: var(--destaque);
     padding: 4px;

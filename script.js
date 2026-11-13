@@ -197,6 +197,17 @@ function clicouP75() { principal(7,5);}
 function clicouP76() { principal(7,6);}
 function clicouP77() { principal(7,7);}
 
+// Funções para promoção
+
+function clicouRAP() { promover (cor, 3); }
+function clicouRAB() { promover (cor, 3); }
+function clicouBIP() { promover (cor, 2); }
+function clicouBIB() { promover (cor, 2); }
+function clicouCAP() { promover (cor, 1); }
+function clicouCAB() { promover (cor, 1); }
+function clicouTOP() { promover (cor, 0); }
+function clicouTOB() { promover (cor, 0); }
+
 /* Principal função */
 
 function principal (posY, posX)
@@ -212,6 +223,9 @@ function principal (posY, posX)
 		{
 			mover(posX, posY, posSel, posPec, posicoes);
 			posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei);
+			
+			if (promo)
+				ativarPromo (cor, posY, posX);
 			
 			cor = cor === "brancas" ? "pretas" : "brancas";
 			// Inverte o turno
@@ -298,6 +312,8 @@ function principal (posY, posX)
 	}
 	
 }
+
+// Funções de calculo de movimento
 
 function limpar (matriz)
 {
@@ -440,19 +456,76 @@ function posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei)
 	
 }
 
-function ativarPromo (cor)
+function ativarPromo (cor, posY, posX)
 {
-	cor = cor === "brancas" ? "pretas" : "brancas";
-	// Inverte a cor para voltar o turno para quem de fato está promovendo
 
 	if(cor === "brancas"){
 		promotBranco.style.display = "flex";
+		promotBranco.style.left = posX * posicoes[0][0].offsetWidth+"px";
 	}
 	if(cor === "pretas"){
 		promotPreto.style.display = "flex";
-	}		
+		promotPreto.style.left = posX * posicoes[0][0].offsetWidth+"px";
+	}	
+
+	posSel[X] = posX;
+	posSel[Y] = posY;
+	
 }
 
+function promover (cor, tipo)
+{
+	cor = cor === "brancas" ? "pretas" : "brancas";
+	// Inverte a cor para voltar o turno para quem de fato está promovendo
+	
+	if(cor === "brancas"){
+		
+		switch(tipo)
+		{
+			case 0:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + TORRE_BRANCA + "')";
+				break;
+			case 1:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + CAVALO_BRANCO + "')";
+				break;
+			case 2:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + BISPO_BRANCO + "')";
+				break;
+			case 3:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + RAINHA_BRANCA + "')";
+				break;
+				
+		}
+		
+		promotBranco.style.display = "none";
+		promotBranco.style.left = 0;
+		
+	}
+	if(cor === "pretas"){
+		
+		switch(tipo)
+		{
+			case 0:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + TORRE_PRETA + "')";
+				break;
+			case 1:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + CAVALO_PRETO + "')";
+				break;
+			case 2:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + BISPO_PRETO + "')";
+				break;
+			case 3:
+				posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "url('img/" + RAINHA_PRETA + "')";
+				break;		
+		}
+		
+		promotPreto.style.display = "none";
+		promotPreto.style.left = 0;
+	}
+
+	promo = false;
+	
+}
 
 function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
@@ -1089,3 +1162,11 @@ posicoes[7][5].addEventListener('click', clicouP75);
 posicoes[7][6].addEventListener('click', clicouP76);
 posicoes[7][7].addEventListener('click', clicouP77);
 
+promoRainhaBr.addEventListener('click', clicouRAB);
+promoRainhaPr.addEventListener('click', clicouRAP);
+promoTorreBr.addEventListener('click', clicouTOB);
+promoTorrePr.addEventListener('click', clicouTOP);
+promoBispoBr.addEventListener('click', clicouBIB);
+promoBispoPr.addEventListener('click', clicouBIP);
+promoCavaloBr.addEventListener('click', clicouCAB);
+promoCavaloPr.addEventListener('click', clicouCAP);
