@@ -456,21 +456,25 @@ function posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei)
 	
 }
 
-function ativarPromo (cor, posY, posX)
-{
+function ativarPromo(cor, posY, posX) {
 
-	if(cor === "brancas"){
-		promotBranco.style.display = "flex";
-		promotBranco.style.left = posX * posicoes[0][0].offsetWidth+"px";
-	}
-	if(cor === "pretas"){
-		promotPreto.style.display = "flex";
-		promotPreto.style.left = posX * posicoes[0][0].offsetWidth+"px";
-	}	
+    const tabuleiro = document.getElementById("tabuleiro");
+    const tamanhoCasa = tabuleiro.clientWidth / 8;
 
-	posSel[X] = posX;
-	posSel[Y] = posY;
-	
+    if (cor === "brancas") {
+        promotBranco.style.display = "flex";
+        promotBranco.style.left = (posX * tamanhoCasa) + "px";
+        promotBranco.style.width = tamanhoCasa + "px";
+    }
+
+    if (cor === "pretas") {
+        promotPreto.style.display = "flex";
+        promotPreto.style.left = (posX * tamanhoCasa) + "px";
+        promotPreto.style.width = tamanhoCasa + "px";
+    }
+
+    posSel[X] = posX;
+    posSel[Y] = posY;
 }
 
 function promover (cor, tipo)
