@@ -87,14 +87,22 @@ main {
     justify-content: center;
     align-items: center;
     min-width: 0;
-    padding-top: 25px;
+    padding-top: 45px;
     padding-bottom: 25px;
-    gap: 25px;
+    gap: 45px;
+}
+
+section#jogo{
+    position: relative;
+    width: min(100%, 420px);
+    border-radius: 2px;
+    display: flex;
+    flex-flow: column;
 }
 
 section#tabuleiro {
     position: relative;
-    width: min(100%, 420px);
+    width: 100%;
     aspect-ratio: 1 / 1;
     border-radius: 2px;
     display: grid;
@@ -160,7 +168,7 @@ div.casa p {
     position: absolute;
     margin: 0;
     line-height: 1;
-    font-size: 13px;
+    font-size: 10px;
     z-index: 2;
     pointer-events: none;
 }
@@ -225,6 +233,44 @@ button.preto-promocao {
 button.branco-promocao:hover,
 button.preto-promocao:hover {
     border: 1px solid var(--destaque-inverso);
+    background-size: 160%;
+}
+
+div#pontuacao-preto,
+div#pontuacao-branco {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 35px;
+    padding: 2px 2px;
+    gap: 2px;
+    z-index: 10;
+}
+
+div#pontuacao-preto {
+    top: -35px;
+}
+
+div#pontuacao-branco {
+    bottom: -35px;
+}
+
+div#rainhaBr, div#rainhaPr,
+div#torreBr, div#torrePr,
+div#cavaloBr, div#cavaloPr,
+div#bispoBr, div#bispoPr,
+div#peaoBr, div#peaoPr {
+    display: none;
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 120%;
 }
 
 section#tela {
@@ -257,7 +303,7 @@ div.botao {
     -webkit-backdrop-filter: blur(var(--vidro-blur));
     box-shadow: 0 4px 30px var(--vidro-sombra);
     border: 1px solid var(--vidro-borda);
-    border-radius: 5px;
+    border-radius: 15px;
 }
 
 div.botao:hover{
@@ -328,10 +374,16 @@ span.indicador-movimento {
         align-items: center;
         justify-content: center;
         gap: 25px;
+        padding-top: 25px;
+        padding-bottom: 25px;
+    }
+
+    section#jogo {
+        width: min(48vw, 586px, calc(100vh - 220px));
     }
 
     section#tabuleiro {
-        width: min(48vw, 660px, calc(100vh - 220px));
+        width: 100%;
         aspect-ratio: 1 / 1;
         flex-shrink: 1;
     }
