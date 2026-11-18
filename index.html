@@ -17,21 +17,21 @@
     </header>
 
     <main>
-        <section id="jogo">
+        <div id="jogo">
 
             <div id="pontuacao-preto">
-                <div id="rainhaBr" style="background-image: url('img/rainha-branco.png');"><p class="pontos"></p></div>
-                <div id="torreBr"><p class="pontos"></p></div>
-                <div id="cavaloBr"><p class="pontos"></p></div>
-                <div id="bispoBr"><p class="pontos"></p></div>
-                <div id="peaoBr" style="background-image: url('img/peao-branco.png')"><p class="pontos"></p></div>
+                <div id="rainhaBr" style="background-image: url('img/rainha-branco.png');"><p id="pontosRainhaBr"></p></div>
+                <div id="torreBr" style="background-image: url('img/torre-branco.png');"><p id="pontosTorreBr"></p></div>
+                <div id="cavaloBr" style="background-image: url('img/cavalo-branco.png');"><p id="pontosCavaloBr"></p></div>
+                <div id="bispoBr" style="background-image: url('img/bispo-branco.png');"><p id="pontosBispoBr"></p></div>
+                <div id="peaoBr" style="background-image: url('img/peao-branco.png')"><p id="pontosPeaoBr"></p></div>
             </div>
 
-            <section id="tabuleiro">
+            <div id="tabuleiro">
 
                 <div id="mensagem-fim">
                     <div class="conteudo-fim">
-                        <h2 id="texto-fim"></h2>
+                        <p id="texto-fim"></p>
                         <p id="detalhe-fim"></p>
                     </div>
                 </div>
@@ -130,17 +130,17 @@
                     <button class="preto-promocao" id="promot-rainhapr" style="background-image: url('img/rainha-preto.png');"></button>
                 </div>
 
-            </section>
-
-            <div id="pontuacao-branco">
-                <div id="rainhaPr"><p class="pontos"></p></div>
-                <div id="torrePr"><p class="pontos"></p></div>
-                <div id="cavaloPr"><p class="pontos"></p></div>
-                <div id="bispoPr"><p class="pontos"></p></div>
-                <div id="peaoPr"><p class="pontos"></p></div>
             </div>
 
-        </section>
+            <div id="pontuacao-branco">
+                <div id="rainhaPr" style="background-image: url('img/rainha-preto.png');"><p id="pontosRainhaPr"></p></div>
+                <div id="torrePr" style="background-image: url('img/torre-preto.png');"><p id="pontosTorrePr"></p></div>
+                <div id="cavaloPr" style="background-image: url('img/cavalo-preto.png');"><p id="pontosCavaloPr"></p></div>
+                <div id="bispoPr" style="background-image: url('img/bispo-preto.png');"><p id="pontosBispoPr"></p></div>
+                <div id="peaoPr" style="background-image: url('img/peao-preto.png');"><p id="pontosPeaoPr"></p></div>
+            </div>
+
+        </div>
 
         <section id="tela">
             <div id="botoes">
@@ -170,6 +170,15 @@
             <span class="nome-destacado">Calebe Cavalcante</span> e
             <span class="nome-destacado">João Pedro</span>
         </p>
+
+        <!--
+        <p>
+            <a href="https://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px" src="https://jigsaw.w3.org/css-validator/images/vcss-blue" alt="CSS válido!"/>
+            </a>
+        </p>
+        -->
+
     </footer>
 
     <script src="script.js"></script>

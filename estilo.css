@@ -92,7 +92,7 @@ main {
     gap: 45px;
 }
 
-section#jogo{
+div#jogo{
     position: relative;
     width: min(100%, 420px);
     border-radius: 2px;
@@ -100,7 +100,7 @@ section#jogo{
     flex-flow: column;
 }
 
-section#tabuleiro {
+div#tabuleiro {
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -114,7 +114,12 @@ section#tabuleiro {
 div#mensagem-fim {
     display: none;
     flex-flow: row nowrap;
-    background-color: var(--destaque);
+    background: var(--vidro-fundo);
+    color: var(--texto-inverso);
+    backdrop-filter: blur(var(--vidro-blur));
+    -webkit-backdrop-filter: blur(var(--vidro-blur));
+    box-shadow: 0 4px 30px var(--vidro-sombra);
+    border: 1px solid var(--vidro-borda);
     border-radius: 15px;
     padding: 15px;
     min-height: 65px;
@@ -122,15 +127,17 @@ div#mensagem-fim {
     justify-self: center;
     align-self: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 50;
 }
 
-div.conteudo-fim h2 {
-    color: var(--destaque-inverso);
+div.conteudo-fim p#texto-fim {
+    color: var(--destaque);
     text-align: center;
+    font-size: 16px;
+    font-weight: 800;
 }
 
-div.conteudo-fim p {
+div.conteudo-fim p#detalhe-fim {
     color: var(--texto);
     font-size: 14px;
     text-align: center;
@@ -378,11 +385,11 @@ span.indicador-movimento {
         padding-bottom: 25px;
     }
 
-    section#jogo {
+    div#jogo {
         width: min(48vw, 586px, calc(100vh - 220px));
     }
 
-    section#tabuleiro {
+    div#tabuleiro {
         width: 100%;
         aspect-ratio: 1 / 1;
         flex-shrink: 1;
