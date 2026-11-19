@@ -12,7 +12,7 @@ Funcionalidades:
 
 Tabuleiro de xadrez interativo.
 Representação visual das peças.
-Movimentação das peças (em desenvolvimento).
+Movimentação das peças.
 
 Acesso:
 Visite o projeto online! https://calebefc2511-collab.github.io/Projeto-Xadrez/
