@@ -280,6 +280,10 @@ div#peaoBr, div#peaoPr {
     background-size: 120%;
 }
 
+div.casa.em-xeque {
+    background-color: rgb(194, 94, 94);
+}
+
 section#tela {
     width: min(100%, 420px);
     display: flex;

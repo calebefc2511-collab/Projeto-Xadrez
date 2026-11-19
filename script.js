@@ -46,6 +46,9 @@ const B = 1;
 const X = 0;
 const Y = 1;
 
+const A = 0;
+const H = 1;
+
 /* Variáveis */
 
 let posPec = new Array(2);
@@ -83,6 +86,7 @@ for (let i = 0; i < 8; i++)
 let posSel = new Array(2);
 // Posição selecionada 
 
+
 let movimentos = new Array(8);
 
 for (let i = 0; i < 8; i++)
@@ -93,6 +97,16 @@ for (let i = 0; i < 8; i++)
 		movimentos[i][j] = false;
 	}
 }
+
+let roque = new Array(2);
+
+roque[B] = new Array(2);
+roque[P] = new Array(2);
+
+roque[B][A] = true;
+roque[B][H] = true;
+roque[P][A] = true;
+roque[P][H] = true;
 
 let enPassant = new Array(2);
 
@@ -110,6 +124,9 @@ let promo = false;
 
 let movendo = false;
 
+let finalizarPartida = false;
+// Vira true no xeque-mate e bloqueia novos cliques no tabuleiro
+
 let posRei = new Array(2);
 
 posRei[B] = new Array(2);
@@ -119,6 +136,19 @@ posRei[B][X] = 4;
 posRei[P][X] = 4;
 posRei[B][Y] = 7;
 posRei[P][Y] = 0; 
+
+let posReiXeque = new Array(2)
+
+for(i = 0; i<8; i++)
+{
+
+	posReiXeque[i] = new Array(8);
+
+	for(j=0; j<8; j++)
+
+		posReiXeque[i][j] = true;
+
+}
 
 
 let cor = "brancas";
@@ -212,11 +242,11 @@ function clicouTOB() { promover (cor, 0); }
 
 function principal (posY, posX)
 {
-	if (promo)
+	if (promo || finalizarPartida)
 	{
 		return;
 	}
-	
+
 	if (movendo)
 	{
 		if (movimentos[posY][posX])
@@ -229,6 +259,11 @@ function principal (posY, posX)
 			
 			cor = cor === "brancas" ? "pretas" : "brancas";
 			// Inverte o turno
+
+			if (!promo)
+				moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
+			// Se houve promoção, a checagem é feita depois que a peça for escolhida
+
 		}
 		
 		limparBolinha(posicoes);
@@ -236,7 +271,7 @@ function principal (posY, posX)
 		movendo = false;
 		
 		limpar(movimentos);
-		
+
 	}
 
 	if (posicoes[posY][posX].style.backgroundImage === "")
@@ -269,12 +304,15 @@ function principal (posY, posX)
 			
 			posSel[X] = posX;
 			posSel[Y] = posY;
+
+			moniMovimentos(posX, posY, posPec, cor)
+
 			// Armazena onde selecionou
-			
+
 			mostrarBolinha(posicoes, movimentos);
-			
+
 			movendo = true;
-			
+
 		}
 	}
 	else
@@ -302,6 +340,9 @@ function principal (posY, posX)
 			
 			posSel[X] = posX;
 			posSel[Y] = posY;
+
+			moniMovimentos(posX, posY, posPec, cor)
+			
 			// Armazena onde selecionou
 			
 			mostrarBolinha(posicoes, movimentos);
@@ -396,6 +437,48 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 		posPec[P][posY][posX] = true;
 		posPec[P][posSel[Y]][posSel[X]] = false;
 	}	
+	
+	/* 
+	Abaixo, roque
+	*/
+	
+	if (posicoes[posY][posX].style.backgroundImage.includes("rei"))
+	{
+		if (cor === "brancas")
+		{
+			if (posSel[X] - posX === 2)
+			{
+				posicoes[posY][posX + 1].style.backgroundImage = posicoes[posY][0].style.backgroundImage;
+				posicoes[posY][0].style.backgroundImage = "";
+				posPec[B][posY][0] = false;
+				posPec[B][posY][posX + 1] = true;
+			}
+			if (posSel[X] - posX === -2)
+			{
+				posicoes[posY][posX - 1].style.backgroundImage = posicoes[posY][7].style.backgroundImage;
+				posicoes[posY][7].style.backgroundImage = "";
+				posPec[B][posY][7] = false;
+				posPec[B][posY][posX - 1] = true;
+			}
+		}
+		if (cor === "pretas")
+		{
+			if (posSel[X] - posX === 2)
+			{
+				posicoes[posY][posX + 1].style.backgroundImage = posicoes[posY][0].style.backgroundImage;
+				posicoes[posY][0].style.backgroundImage = "";
+				posPec[P][posY][0] = false;
+				posPec[P][posY][posX + 1] = true;
+			}
+			if (posSel[X] - posX === -2)
+			{
+				posicoes[posY][posX - 1].style.backgroundImage = posicoes[posY][7].style.backgroundImage;
+				posicoes[posY][7].style.backgroundImage = "";
+				posPec[P][posY][7] = false;
+				posPec[P][posY][posX - 1] = true;
+			}
+		}
+	}
 
 }
 
@@ -446,35 +529,72 @@ function posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei)
 		{
 			posRei[B][X] = posX;
 			posRei[B][Y] = posY;
+			
+			/* 
+			Abaixo, roque
+			*/
+			
+			roque[B][A] = false;
+			roque[B][H] = false;
 		}
 		if (cor === "pretas")
 		{
 			posRei[P][X] = posX;
 			posRei[P][Y] = posY;
+			
+			/* 
+			Abaixo, roque
+			*/
+			
+			roque[P][A] = false;
+			roque[P][H] = false;
+		}
+	}
+	
+	/* 
+	Abaixo, roque
+	*/
+	
+	if (cor === "brancas")
+	{
+		if (!posicoes[7][7].style.backgroundImage.includes(TORRE_BRANCA))
+		{
+			roque[B][H] = false;
+		}
+		if (!posicoes[7][0].style.backgroundImage.includes(TORRE_BRANCA))
+		{
+			roque[B][A] = false;
+		}
+	}
+	if (cor === "pretas")
+	{
+		if (!posicoes[0][7].style.backgroundImage.includes(TORRE_PRETA))
+		{
+			roque[P][H] = false;
+		}
+		if (!posicoes[0][0].style.backgroundImage.includes(TORRE_PRETA))
+		{
+			roque[P][A] = false;
 		}
 	}
 	
 }
 
-function ativarPromo(cor, posY, posX) {
+function ativarPromo (cor, posY, posX)
+{
 
-    const tabuleiro = document.getElementById("tabuleiro");
-    const tamanhoCasa = tabuleiro.clientWidth / 8;
+	if(cor === "brancas"){
+		promotBranco.style.display = "flex";
+		promotBranco.style.left = posX * posicoes[0][0].offsetWidth+"px";
+	}
+	if(cor === "pretas"){
+		promotPreto.style.display = "flex";
+		promotPreto.style.left = posX * posicoes[0][0].offsetWidth+"px";
+	}	
 
-    if (cor === "brancas") {
-        promotBranco.style.display = "flex";
-        promotBranco.style.left = (posX * tamanhoCasa) + "px";
-        promotBranco.style.width = tamanhoCasa + "px";
-    }
-
-    if (cor === "pretas") {
-        promotPreto.style.display = "flex";
-        promotPreto.style.left = (posX * tamanhoCasa) + "px";
-        promotPreto.style.width = tamanhoCasa + "px";
-    }
-
-    posSel[X] = posX;
-    posSel[Y] = posY;
+	posSel[X] = posX;
+	posSel[Y] = posY;
+	
 }
 
 function promover (cor, tipo)
@@ -528,10 +648,13 @@ function promover (cor, tipo)
 	}
 
 	promo = false;
-	
+
+	// Aqui "cor" é quem promoveu; o turno agora é do adversário
+	moniMate(posSel[X], posSel[Y], posicoes, movimentos, posPec, cor === "brancas" ? "pretas" : "brancas", enPassant);
+
 }
 
-function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
+function peao  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei)
 {
 	
 	let NposX = posX;
@@ -541,6 +664,8 @@ function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRe
 	if(cor === "pretas")
 	{
 
+
+
 		if(condicaoPeao(NposX, NposY+1, posPec, cor))
 		{
 
@@ -549,6 +674,7 @@ function peao   (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRe
 			if(posY === 1)
 			{
 
+				
 				{
 
 					if(condicaoPeao(NposX, NposY+2, posPec, cor))
@@ -1045,15 +1171,194 @@ function rei    (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRe
 		}
 
 	}
+	
+	/*
+	Abaixo, roque
+	*/
+	
+	let SposRei;
+	let roquePossivel;
+	
+	if (emXeque(posRei, posicoes, posPec, cor))
+	{
+		return;
+	}
+	
+	if (cor === "brancas") 
+	{
+		if (posY === 7)
+		{
+			if (roque[B][H])
+			{
+				roquePossivel = true;
+				
+				for (i = 1; posX + i <= 6; i++)
+				{
+					if (posPec[P][posY][posX + i] || posPec[B][posY][posX + i])
+					{
+						roquePossivel = false;
+						break;
+					}
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[B][X] = posRei[B][X] + 1;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[B][X] = posRei[B][X] + 2;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				if (roquePossivel)
+				{
+					movimentos[posY][posX + 2] = true; 
+				}
+				
+			}
+			
+			SposRei = structuredClone(posRei);
+			
+			if (roque[B][A])
+			{
+				roquePossivel = true;
+				
+				for (i = -1; posX + i >= 1; i--)
+				{
+					if (posPec[P][posY][posX + i] || posPec[B][posY][posX + i])
+					{
+						roquePossivel = false;
+						break;
+					}
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[B][X] = posRei[B][X] - 1;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[B][X] = posRei[B][X] - 2;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				if (roquePossivel)
+				{
+					movimentos[posY][posX - 2] = true; 
+				}
+			}
+		}
+	}
+	if (cor === "pretas")
+	{
+		if (posY === 0)
+		{
+			if (roque[P][H])
+			{
+				roquePossivel = true;
+				
+				for (i = 1; posX + i <= 6; i++)
+				{
+					if (posPec[P][posY][posX + i] || posPec[B][posY][posX + i])
+					{
+						roquePossivel = false;
+						break;
+					}
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[P][X] = posRei[P][X] + 1;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[P][X] = posRei[P][X] + 2;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				if (roquePossivel)
+				{
+					movimentos[posY][posX + 2] = true; 
+				}
+				
+			}
+			
+			SposRei = structuredClone(posRei);
+			
+			if (roque[P][A])
+			{
+				roquePossivel = true;
+				
+				for (i = -1; posX + i >= 1; i--)
+				{
+					if (posPec[P][posY][posX + i] || posPec[B][posY][posX + i])
+					{
+						roquePossivel = false;
+						break;
+					}
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[P][X] = posRei[P][X] - 1;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				SposRei = structuredClone(posRei);
+				
+				SposRei[P][X] = posRei[P][X] - 2;
+				
+				if (emXeque(SposRei, posicoes, posPec, cor))
+				{
+					roquePossivel = false;
+				}
+				
+				if (roquePossivel)
+				{
+					movimentos[posY][posX - 2] = true; 
+				}
+			}
+		}
+	}
 
 }
 
 function condicao(posX, posY, posicoes, posPec, cor)
 {
+
 	if (! ( ( posX >= 0 && posX <= 7 ) && ( posY >= 0 && posY <= 7 ) ) ) 
 	{
 		return false;
 	}
+
 	return !(posPec[P][posY][posX] || posPec[B][posY][posX]) || posPec[P][posY][posX] && cor === "brancas" || posPec[B][posY][posX] && cor === "pretas";
 }
 
@@ -1089,6 +1394,953 @@ function condicaoPeaoDgn(posX, posY, posPec, cor)
 		return true;
 
 	return false;
+
+}
+
+function moniMovimentos(posX, posY, posPec, cor)
+{
+
+	let img = posicoes[posY][posX].style.backgroundImage;
+	let imgDestino;
+
+	// Os testes abaixo movem posRei temporariamente; guarda para restaurar no fim
+	const reiBX = posRei[B][X], reiBY = posRei[B][Y];
+	const reiPX = posRei[P][X], reiPY = posRei[P][Y];
+
+	let SposRei = posRei;
+
+	if (posicoes[posY][posX].style.backgroundImage.includes("rei"))
+	{
+		if (cor === "brancas")
+		{
+			SposRei[B][X] = posX;
+			SposRei[B][Y] = posY;
+		}
+		if (cor === "pretas")
+		{
+			SposRei[P][X] = posX;
+			SposRei[P][Y] = posY;
+		}
+	}
+
+	for(let i = 0; i<8; i++)
+	{
+
+		for(let j=0; j<8; j++)
+		{
+
+			if(movimentos[i][j] === true)
+			{
+
+				imgDestino = posicoes[i][j].style.backgroundImage;
+
+				posPec[B][posY][posX] = false;
+				posPec[P][posY][posX] = false
+
+				if(cor === "brancas")
+
+					posPec[B][i][j] = true;
+
+				else
+
+					posPec[P][i][j] = true;
+
+				posicoes[i][j].style.backgroundImage = img;
+				posicoes[posY][posX].style.backgroundImage = "";
+
+				SposRei = posRei;
+
+				if (posicoes[i][j].style.backgroundImage.includes("rei"))
+				{
+					if (cor === "brancas")
+					{
+						SposRei[B][X] = j;
+						SposRei[B][Y] = i;
+					}
+					if (cor === "pretas")
+					{
+						SposRei[P][X] = j;
+						SposRei[P][Y] = i;
+					}
+				}
+
+				if(emXeque(posRei, posicoes, posPec, cor))
+
+					movimentos[i][j] = false;
+
+ 				posicoes[posY][posX].style.backgroundImage = img;
+				posicoes[i][j].style.backgroundImage = imgDestino;
+	
+ 				if(posicoes[i][j].style.backgroundImage)
+				{
+					if(cor === "brancas")
+					{
+						posPec[P][i][j] = true;
+						posPec[B][i][j] = false;
+					}
+
+					else
+					{
+						posPec[B][i][j] = true;
+						posPec[P][i][j] = false;
+					}
+				}
+				else
+				{
+					posPec[B][i][j] = false;
+					posPec[P][i][j] = false;
+				}
+ 				if(cor === "brancas")
+
+					posPec[B][posY][posX] = true;
+
+				else  
+
+					posPec[P][posY][posX] = true;
+
+				//Verificação caso EnPassant
+
+ 				let imgEnPassant, imgEnpassantOposto;
+
+ 				if(cor==="brancas")
+				{
+
+					if(posicoes[posY][posX].style.backgroundImage.includes(PEAO_BRANCO) && posPec[P][posY-1][posX+1] === false && movimentos[posY-1][posX+1] === true)
+					{
+
+						imgEnpassantOposto = posicoes[posY][posX+1].style.backgroundImage;
+						imgEnPassant = posicoes[posY][posX].style.backgroundImage;
+						posicoes[posY][posX+1].style.backgroundImage = "";
+						posicoes[posY][posX].style.backgroundImage = "";
+						posicoes[posY-1][posX+1].style.backgroundImage = imgEnPassant;
+						posPec[B][posY][posX] = false;
+						posPec[B][posY-1][posX+1] = true;
+						posPec[P][posY][posX+1] = false;
+
+						if(emXeque(posRei, posicoes, posPec, cor))
+	
+							movimentos[i][j] = false;
+
+						posicoes[posY][posX].style.backgroundImage = imgEnPassant;
+						posicoes[posY][posX+1].style.backgroundImage = imgEnpassantOposto;
+						posicoes[posY-1][posX+1].style.backgroundImage = imgEnPassant;
+						posicoes[posY-1][posX+1].style.backgroundImage = "";
+						posPec[B][posY][posX] = true;
+						posPec[B][posY-1][posX+1] = false;
+						posPec[P][posY][posX+1] = true;
+
+					}
+
+					if(posicoes[posY][posX].style.backgroundImage.includes(PEAO_BRANCO) && posPec[P][posY-1][posX-1] === false && movimentos[posY-1][posX-1] === true)
+					{
+
+						imgEnpassantOposto = posicoes[posY][posX-1].style.backgroundImage;
+						imgEnPassant = posicoes[posY][posX].style.backgroundImage;
+						posicoes[posY][posX-1].style.backgroundImage = "";
+						posicoes[posY][posX].style.backgroundImage = "";
+						posicoes[posY-1][posX-1].style.backgroundImage = imgEnPassant;
+						posPec[B][posY][posX] = false;
+						posPec[B][posY-1][posX-1] = true;
+						posPec[P][posY][posX-1] = false;
+
+
+						if(emXeque(posRei, posicoes, posPec, cor))
+
+							movimentos[i][j] = false;
+							
+						posicoes[posY][posX].style.backgroundImage = imgEnPassant;
+						posicoes[posY][posX-1].style.backgroundImage = imgEnpassantOposto;
+						posicoes[posY-1][posX-1].style.backgroundImage = imgEnPassant;
+ 						posicoes[posY-1][posX-1].style.backgroundImage = "";
+						posPec[B][posY][posX] = true;
+						posPec[B][posY-1][posX-1] = false;
+						posPec[P][posY][posX-1] = true;
+
+					
+					}
+
+				}
+
+ 				if(cor==="pretas")
+				{
+
+					if(posicoes[posY][posX].style.backgroundImage.includes(PEAO_PRETO) && posPec[B][posY+1][posX+1] === false && movimentos[posY+1][posX+1] === true)
+					{
+						imgEnpassantOposto = posicoes[posY][posX+1].style.backgroundImage;
+						imgEnPassant = posicoes[posY][posX].style.backgroundImage;
+						posicoes[posY][posX+1].style.backgroundImage = "";
+						posicoes[posY][posX].style.backgroundImage = "";
+						posicoes[posY+1][posX+1].style.backgroundImage = imgEnPassant;
+						posPec[P][posY][posX] = false;
+						posPec[P][posY+1][posX+1] = true;
+						posPec[B][posY][posX+1] = false;
+
+						
+						if(emXeque(posRei, posicoes, posPec, cor))
+
+							movimentos[i][j] = false;
+
+						posicoes[posY][posX].style.backgroundImage = imgEnPassant;
+						posicoes[posY][posX+1].style.backgroundImage = imgEnpassantOposto;
+						posicoes[posY+1][posX+1].style.backgroundImage = imgEnPassant;
+						posicoes[posY+1][posX+1].style.backgroundImage = "";
+						posPec[P][posY][posX] = true;
+						posPec[P][posY+1][posX+1] = false;
+						posPec[B][posY][posX+1] = true;
+
+
+					}
+
+					if(posicoes[posY][posX].style.backgroundImage.includes(PEAO_PRETO) && posPec[B][posY+1][posX-1] === false && movimentos[posY+1][posX-1] === true)
+					{
+
+						imgEnpassantOposto = posicoes[posY][posX-1].style.backgroundImage;
+						imgEnPassant = posicoes[posY][posX].style.backgroundImage;
+						posicoes[posY][posX-1].style.backgroundImage = "";
+						posicoes[posY][posX].style.backgroundImage = "";
+						posicoes[posY+1][posX-1].style.backgroundImage = imgEnPassant;
+						posPec[P][posY][posX] = false;
+						posPec[P][posY+1][posX-1] = true;
+						posPec[B][posY][posX-1] = false;
+
+						if(emXeque(posRei, posicoes, posPec, cor))
+
+							movimentos[i][j] = false;
+
+						posicoes[posY][posX].style.backgroundImage = imgEnPassant;
+						posicoes[posY][posX-1].style.backgroundImage = imgEnpassantOposto;
+						posicoes[posY+1][posX-1].style.backgroundImage = imgEnPassant;
+						posicoes[posY+1][posX-1].style.backgroundImage = "";
+						posPec[P][posY][posX] = true;
+						posPec[P][posY+1][posX-1] = false;
+						posPec[B][posY][posX-1] = true;
+
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+	posRei[B][X] = reiBX;
+	posRei[B][Y] = reiBY;
+	posRei[P][X] = reiPX;
+	posRei[P][Y] = reiPY;
+
+}
+
+function emXeque(posRei, posicoes, posPec, cor)
+{
+
+	let i;
+	let j;
+
+	// O rei adversário também ameaça as casas ao redor dele: dois reis nunca podem ficar lado a lado
+	if (Math.abs(posRei[B][X] - posRei[P][X]) <= 1 && Math.abs(posRei[B][Y] - posRei[P][Y]) <= 1)
+
+		return true;
+
+	if(cor === "brancas")
+	{
+
+		//Xeque nas diagonais
+
+		for(i = 0; i<4; i++)
+		{
+
+			cont = 0;
+
+			NposXb = posRei[B][X];
+			NposYb = posRei[B][Y];
+
+			for(j = 0; j<8; j++)
+			{
+
+				if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+				{
+					break;
+				}
+
+				if((posPec[B][NposYb][NposXb] || posPec[P][NposYb][NposXb]) && !(posicoes[NposYb][NposXb].style.backgroundImage.includes(REI_BRANCO)))
+
+					break;
+
+				switch (i)
+				{
+
+					case 0:
+
+						NposYb += - 1;
+						NposXb += - 1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(cont === 0 && (posicoes[NposYb][NposXb].style.backgroundImage.includes(BISPO_PRETO) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA) || posicoes[NposYb][NposXb].style.backgroundImage.includes(PEAO_PRETO)))
+
+							return true;
+
+						if(!(cont===0) && posicoes[NposYb][NposXb].style.backgroundImage.includes(BISPO_PRETO) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+					case 1:
+
+						NposYb += -1;
+						NposXb += +1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(cont === 0 && (posicoes[NposYb][NposXb].style.backgroundImage.includes(BISPO_PRETO) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA) || posicoes[NposYb][NposXb].style.backgroundImage.includes(PEAO_PRETO)))
+
+							return true;
+
+						if(!(cont===0) && posicoes[NposYb][NposXb].style.backgroundImage.includes(BISPO_PRETO) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+					case 2:
+
+						NposYb += +1;
+						NposXb += +1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb][NposXb].style.backgroundImage.includes(BISPO_PRETO) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+					case 3:
+
+						NposYb += +1;
+						NposXb += -1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb][NposXb].style.backgroundImage.includes(BISPO_PRETO) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+				}
+
+			}
+
+		}	
+
+		//Xeque na horizontal e vertical 
+
+		for(i = 0; i<4; i++)
+		{
+
+			NposXb = posRei[B][X];
+			NposYb = posRei[B][Y];
+
+			for(j = 0; j<8; j++)
+			{
+
+				if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+				{
+					break;
+				}
+
+				if((posPec[B][NposYb][NposXb] || posPec[P][NposYb][NposXb]) && !(posicoes[NposYb][NposXb].style.backgroundImage.includes(REI_BRANCO)))
+
+					break;
+
+				switch (i)
+				{
+
+					case 0:
+
+						NposYb += - 1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb][NposXb].style.backgroundImage.includes(TORRE_PRETA) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						break;
+
+					case 1:
+
+						NposYb += +1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if((posicoes[NposYb][NposXb].style.backgroundImage.includes(TORRE_PRETA) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA)))
+
+							return true;
+
+						break;
+
+					case 2:
+
+						NposXb += -1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb][NposXb].style.backgroundImage.includes(TORRE_PRETA) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						break;
+
+					case 3:
+
+						NposXb += +1;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb][NposXb].style.backgroundImage.includes(TORRE_PRETA) || posicoes[NposYb][NposXb].style.backgroundImage.includes(RAINHA_PRETA))
+
+							return true;
+
+						break;
+
+
+				}
+
+			}
+
+		}
+
+		//Xeque do cavalo
+
+		for(i=0; i<4; i++)
+		{
+
+			NposXb = posRei[B][X];
+			NposYb = posRei[B][Y];
+
+
+			for(j = -1; j<=1; j++)
+			{
+
+				if(j===0)
+
+					continue;
+
+				NposYb = posRei[B][Y];
+				NposXb = posRei[B][X];
+
+				switch(i)
+				{
+
+					case 0:
+
+						NposYb += +2;
+
+						if (! ( ( NposXb+j >= 0 && NposXb+j <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+						
+						if(posicoes[NposYb][NposXb+j].style.backgroundImage.includes(CAVALO_PRETO))
+						{
+							posReiXeque[NposYb][NposXb] = false;
+
+							return true;
+						}
+						break;
+
+					case 1:
+
+						NposYb += -2;
+
+						if (! ( ( NposXb+j >= 0 && NposXb+j <= 7 ) && ( NposYb >= 0 && NposYb <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb][NposXb+j].style.backgroundImage.includes(CAVALO_PRETO))
+						{
+							posReiXeque[NposYb][NposXb] = false;
+
+							return true;
+						}
+						break;
+
+					case 2:
+
+						NposXb += +2;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb+j >= 0 && NposYb+j <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb+j][NposXb].style.backgroundImage.includes(CAVALO_PRETO))
+						{
+							posReiXeque[NposYb][NposXb] = false;
+
+							return true;
+						}
+						break;
+
+					case 3:
+
+						NposXb += -2;
+
+						if (! ( ( NposXb >= 0 && NposXb <= 7 ) && ( NposYb+j >= 0 && NposYb+j <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYb+j][NposXb].style.backgroundImage.includes(CAVALO_PRETO))
+						{
+							posReiXeque[NposYb][NposXb] = false;
+
+							return true;
+						}
+						break;
+
+				}
+
+			}
+
+		}
+
+	}
+
+	if(cor === "pretas")
+	{
+
+		//Xeque na diagonal
+
+		for(i = 0; i<4; i++)
+		{
+
+			cont = 0;
+
+			NposXp = posRei[P][X];
+			NposYp = posRei[P][Y];
+
+			for(j = 0; j<8; j++)
+			{
+
+				if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+				{
+					break;
+				}
+
+				if((posPec[B][NposYp][NposXp] || posPec[P][NposYp][NposXp]) && !(posicoes[NposYp][NposXp].style.backgroundImage.includes(REI_PRETO)))
+
+					break;
+
+				switch (i)
+				{
+
+					case 0:
+
+						NposYp += + 1;
+						NposXp += + 1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(cont === 0 && (posicoes[NposYp][NposXp].style.backgroundImage.includes(BISPO_BRANCO) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA) || posicoes[NposYp][NposXp].style.backgroundImage.includes(PEAO_BRANCO)))
+
+								return true;
+
+						if(!(cont===0) && posicoes[NposYp][NposXp].style.backgroundImage.includes(BISPO_BRANCO) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+					case 1:
+
+						NposYp += +1;
+						NposXp += -1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(cont === 0 && (posicoes[NposYp][NposXp].style.backgroundImage.includes(BISPO_BRANCO) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA) || posicoes[NposYp][NposXp].style.backgroundImage.includes(PEAO_BRANCO)))
+
+								return true;
+
+						if(!(cont===0) && posicoes[NposYp][NposXp].style.backgroundImage.includes(BISPO_BRANCO) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+					case 2:
+
+						NposYp += -1;
+						NposXp += +1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp][NposXp].style.backgroundImage.includes(BISPO_BRANCO) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+					case 3:
+
+						NposYp += -1;
+						NposXp += -1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp][NposXp].style.backgroundImage.includes(BISPO_BRANCO) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						cont++;
+
+						break;
+
+				}
+
+			}
+
+		}	
+
+		//Xeque na horizontal e na vertical
+
+		for(i = 0; i<4; i++)
+		{
+
+			NposXp = posRei[P][X];
+			NposYp = posRei[P][Y];
+
+			for(j = 0; j<8; j++)
+			{
+
+				if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+				{
+					break;
+				}
+
+				if((posPec[B][NposYp][NposXp] || posPec[P][NposYp][NposXp]) && !(posicoes[NposYp][NposXp].style.backgroundImage.includes(REI_PRETO)))
+
+					break;
+
+				switch (i)
+				{
+
+					case 0:
+
+						NposYp += - 1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp][NposXp].style.backgroundImage.includes(TORRE_BRANCA) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						break;
+
+					case 1:
+
+						NposYp += +1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if((posicoes[NposYp][NposXp].style.backgroundImage.includes(TORRE_BRANCA) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA)))
+
+							return true;
+
+						break;
+
+					case 2:
+
+						NposXp += -1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp][NposXp].style.backgroundImage.includes(TORRE_BRANCA) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						break;
+
+					case 3:
+
+						NposXp += +1;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp][NposXp].style.backgroundImage.includes(TORRE_BRANCA) || posicoes[NposYp][NposXp].style.backgroundImage.includes(RAINHA_BRANCA))
+
+							return true;
+
+						break;
+
+
+				}
+
+			}
+
+		}
+
+		//Xeque do cavalo
+
+		for(i=0; i<4; i++)
+		{
+
+			NposXp = posRei[P][X];
+			NposYp = posRei[P][Y];
+
+
+			for(j = -1; j<=1; j++)
+			{
+
+				if(j===0)
+
+					continue;
+
+				NposYp = posRei[P][Y];
+				NposXp = posRei[P][X];
+
+				switch(i)
+				{
+
+					case 0:
+
+						NposYp += +2;
+
+						if (! ( ( NposXp+j >= 0 && NposXp+j <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+						
+						if(posicoes[NposYp][NposXp+j].style.backgroundImage.includes(CAVALO_BRANCO))
+						{
+							posReiXeque[NposYp][NposXp] = false;
+
+							return true;
+						}
+						break;
+
+					case 1:
+
+						NposYp += -2;
+
+						if (! ( ( NposXp+j >= 0 && NposXp+j <= 7 ) && ( NposYp >= 0 && NposYp <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp][NposXp+j].style.backgroundImage.includes(CAVALO_BRANCO))
+						{
+							posReiXeque[NposYp][NposXp] = false;
+
+							return true;
+						}
+						break;
+
+					case 2:
+
+						NposXp += +2;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp+j >= 0 && NposYp+j <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp+j][NposXp].style.backgroundImage.includes(CAVALO_BRANCO))
+						{
+							posReiXeque[NposYp][NposXp] = false;
+
+							return true;
+						}
+						break;
+
+					case 3:
+
+						NposXp += -2;
+
+						if (! ( ( NposXp >= 0 && NposXp <= 7 ) && ( NposYp+j >= 0 && NposYp+j <= 7 ) ) ) 
+						{
+							break;
+						}
+
+						if(posicoes[NposYp+j][NposXp].style.backgroundImage.includes(CAVALO_BRANCO))
+						{
+							posReiXeque[NposYp][NposXp] = false;
+
+							return true;
+						}
+						break;
+
+				}
+
+			}
+
+		}
+
+	}
+
+}
+
+// Chamada depois de cada lance (e depois da promoção).
+// "cor" é o lado que vai jogar agora. Se nenhuma peça dele tem movimento legal
+// e o rei dele está em xeque, é xeque-mate.
+function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
+{
+
+	const lado = cor === "brancas" ? B : P;
+
+	let achou = false;
+	let i, j, a, b;
+
+	for(i=0; i<8 && !achou; i++)
+
+		for(j=0; j<8 && !achou; j++)
+		{
+
+			if (!posPec[lado][i][j])
+
+				continue;
+
+			// Cada peça é calculada sozinha, sem sobras das anteriores
+			limpar(movimentos);
+
+			if (cor === "brancas")
+			{
+				if (posicoes[i][j].style.backgroundImage.includes(PEAO_BRANCO)) {
+					peao   (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(CAVALO_BRANCO)) {
+					cavalo (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(TORRE_BRANCA)) {
+					torre  (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(BISPO_BRANCO)) {
+					bispo  (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(RAINHA_BRANCA)) {
+					rainha (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(REI_BRANCO)) {
+					rei    (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+			}
+			else
+			{
+				if (posicoes[i][j].style.backgroundImage.includes(PEAO_PRETO)) {
+					peao   (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(CAVALO_PRETO)) {
+					cavalo (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(TORRE_PRETA)) {
+					torre  (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(BISPO_PRETO)) {
+					bispo  (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(RAINHA_PRETA)) {
+					rainha (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+				if (posicoes[i][j].style.backgroundImage.includes(REI_PRETO)) {
+					rei    (j, i, posicoes, movimentos, posPec, cor, enPassant, posRei);
+				}
+			}
+
+			// Tira os movimentos que deixariam o próprio rei em xeque
+			moniMovimentos(j, i, posPec, cor)
+
+			for(a=0; a<8; a++)
+
+				for(b=0; b<8; b++)
+
+					if(movimentos[a][b] === true)
+
+						achou = true;
+
+		}
+
+	limpar(movimentos);
+
+	if (achou)
+
+		return;
+
+	// Sem nenhum movimento legal: só é xeque-mate se o rei estiver em xeque
+	if (emXeque(posRei, posicoes, posPec, cor))
+	{
+
+		finalizarPartida = true;
+
+	}
 
 }
 
