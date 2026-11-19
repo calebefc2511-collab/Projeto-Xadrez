@@ -151,6 +151,8 @@ for(i = 0; i<8; i++)
 }
 
 
+let casaXeque = null;
+
 let cor = "brancas";
 
 /* Funções */
@@ -260,9 +262,12 @@ function principal (posY, posX)
 			cor = cor === "brancas" ? "pretas" : "brancas";
 			// Inverte o turno
 
-			if (!promo)
-				moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 			// Se houve promoção, a checagem é feita depois que a peça for escolhida
+			if (!promo)
+			{
+				moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
+				atualizarXeque(cor);
+			}
 
 		}
 		
@@ -651,6 +656,7 @@ function promover (cor, tipo)
 
 	// Aqui "cor" é quem promoveu; o turno agora é do adversário
 	moniMate(posSel[X], posSel[Y], posicoes, movimentos, posPec, cor === "brancas" ? "pretas" : "brancas", enPassant);
+	atualizarXeque(cor === "brancas" ? "pretas" : "brancas");
 
 }
 
@@ -2249,6 +2255,21 @@ function emXeque(posRei, posicoes, posPec, cor)
 
 }
 
+function atualizarXeque(cor) {
+    if (casaXeque)
+        casaXeque.classList.remove("em-xeque");
+
+    const lado = cor === "brancas" ? B : P;
+
+    if (emXeque(posRei, posicoes, posPec, cor)) {
+        casaXeque = posicoes[posRei[lado][Y]][posRei[lado][X]];
+        casaXeque.classList.add("em-xeque");
+    }
+    else {
+        casaXeque = null;
+    }
+}
+
 // Chamada depois de cada lance (e depois da promoção).
 // "cor" é o lado que vai jogar agora. Se nenhuma peça dele tem movimento legal
 // e o rei dele está em xeque, é xeque-mate.
@@ -2341,6 +2362,13 @@ function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 		finalizarPartida = true;
 
 	}
+
+	document.getElementById("mensagem-fim").style.display = "flex";
+	document.getElementById("texto-fim").textContent = "Xeque-mate!";
+	if(cor === "brancas")
+		document.getElementById("detalhe-fim").textContent = "As pretas venceram!";
+	else
+		document.getElementById("detalhe-fim").textContent = "As brancas venceram!";
 
 }
 
