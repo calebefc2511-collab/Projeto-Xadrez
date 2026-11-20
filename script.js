@@ -1,4 +1,4 @@
- /* Elementos */
+/* Elementos */
 
 const posicoes = new Array(8);
 
@@ -12,6 +12,38 @@ for (let i = 0; i <= 7; i++)
 		posicoes[i][j] = document.getElementById("pos"+py+px);
 	}
 }
+
+const promotBranco  = document.getElementById("promot-branco");
+const promotPreto   = document.getElementById("promot-preto");
+
+const promoRainhaBr = document.getElementById("promot-rainhabr");
+const promoRainhaPr = document.getElementById("promot-rainhapr");
+const promoTorreBr  = document.getElementById("promot-torrebr");
+const promoTorrePr  = document.getElementById("promot-torrepr");
+const promoBispoBr  = document.getElementById("promot-bispobr");
+const promoBispoPr  = document.getElementById("promot-bispopr");
+const promoCavaloBr = document.getElementById("promot-cavalobr");
+const promoCavaloPr = document.getElementById("promot-cavalopr");
+
+const btnInicio = document.getElementById("retrocedertotal");
+const btnMenos1 = document.getElementById("retroceder");
+const btnMais1  = document.getElementById("avancar");
+const btnAtual  = document.getElementById("avancartotal");
+
+const pontosTomPeaoBr   = document.getElementById("peaoBr");
+const pontosTomTorreBr  = document.getElementById("torreBr");
+const pontosTomCavaloBr = document.getElementById("cavaloBr");
+const pontosTomBispoBr  = document.getElementById("bispoBr");
+const pontosTomRainhaBr = document.getElementById("rainhaBr");
+
+const pontosTomPeaoPr   = document.getElementById("peaoPr");
+const pontosTomTorrePr  = document.getElementById("torrePr");
+const pontosTomCavaloPr = document.getElementById("cavaloPr");
+const pontosTomBispoPr  = document.getElementById("bispoPr");
+const pontosTomRainhaPr = document.getElementById("rainhaPr");
+
+const placarBr = document.getElementById("placarBr");
+const placarPr = document.getElementById("placarPr");
 
 /* Constantes */
 
@@ -28,18 +60,6 @@ const RAINHA_BRANCA	= "rainha-branco.png";
 const REI_PRETO		= "rei-preto.png";
 const REI_BRANCO	= "rei-branco.png";
 
-const promotBranco  = document.getElementById("promot-branco");
-const promotPreto   = document.getElementById("promot-preto");
-
-const promoRainhaBr = document.getElementById("promot-rainhabr");
-const promoRainhaPr = document.getElementById("promot-rainhapr");
-const promoTorreBr  = document.getElementById("promot-torrebr");
-const promoTorrePr  = document.getElementById("promot-torrepr");
-const promoBispoBr  = document.getElementById("promot-bispobr");
-const promoBispoPr  = document.getElementById("promot-bispopr");
-const promoCavaloBr = document.getElementById("promot-cavalobr");
-const promoCavaloPr = document.getElementById("promot-cavalopr");
-
 const P = 0;
 const B = 1;
 
@@ -50,6 +70,18 @@ const A = 0;
 const H = 1;
 
 /* Variáveis */
+
+/* Salvamento das posições */
+
+const historico = [];
+
+let tamMax = 0;
+let lugAtu = -1;
+
+/* Contagem de pontos */
+
+let pontosBr = 0;
+let pontosPr = 0;
 
 let posPec = new Array(2);
 
@@ -84,7 +116,7 @@ for (let i = 0; i < 8; i++)
 }
 
 let posSel = new Array(2);
-// Posição selecionada 
+// Posição selecionada
 
 
 let movimentos = new Array(8);
@@ -150,10 +182,9 @@ for(i = 0; i<8; i++)
 
 }
 
+let cor = "brancas";
 
 let casaXeque = null;
-
-let cor = "brancas";
 
 /* Funções */
 
@@ -240,11 +271,36 @@ function clicouCAB() { promover (cor, 1); }
 function clicouTOP() { promover (cor, 0); }
 function clicouTOB() { promover (cor, 0); }
 
+// Funções para navegação
+
+function clicouInicio() { 
+	limparBolinha(posicoes);
+	navegar(lugAtu = (0)); 
+}
+function clicouMenos1() { 
+	if (lugAtu == 0)
+		return;
+	limparBolinha(posicoes);
+	navegar(--lugAtu); 
+}
+function clicouMais1()  { 
+	if (lugAtu == tamMax - 1)
+		return;
+	limparBolinha(posicoes);
+	navegar(++lugAtu); 
+}
+function clicouAtual()  { 
+	limparBolinha(posicoes);
+	navegar(lugAtu = (tamMax - 1) ); 
+}
+
 /* Principal função */
+
+atualizarHistorico ();
 
 function principal (posY, posX)
 {
-	if (promo || finalizarPartida)
+	if (promo || finalizarPartida || lugAtu !== tamMax - 1) 
 	{
 		return;
 	}
@@ -253,8 +309,12 @@ function principal (posY, posX)
 	{
 		if (movimentos[posY][posX])
 		{
+			atualizarPontos (posicoes[posY][posX].style.backgroundImage, cor);
+			
 			mover(posX, posY, posSel, posPec, posicoes);
 			posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei);
+			
+			atualizarHistorico();
 			
 			if (promo)
 				ativarPromo (cor, posY, posX);
@@ -657,6 +717,8 @@ function promover (cor, tipo)
 	// Aqui "cor" é quem promoveu; o turno agora é do adversário
 	moniMate(posSel[X], posSel[Y], posicoes, movimentos, posPec, cor === "brancas" ? "pretas" : "brancas", enPassant);
 	atualizarXeque(cor === "brancas" ? "pretas" : "brancas");
+	
+	atualizarHistorico();
 
 }
 
@@ -2372,6 +2434,115 @@ function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 
 }
 
+function atualizarHistorico () 
+{
+	let momento = new Array(8);
+	
+	for (let i = 0; i < 8; i++)
+	{
+		momento[i] = new Array(8);
+		for (let j = 0; j < 8; j++)
+		{
+			momento[i][j] = posicoes[i][j].style.backgroundImage;
+		}
+	}
+	
+	historico.push(momento);
+	tamMax++;
+	lugAtu++;
+}
+
+function navegar (onde)
+{
+	limpar(movimentos);
+	for (let i = 0; i < 8; i++)
+	{
+		for (let j = 0; j < 8; j++)
+		{
+			if (posicoes[i][j].style.backgroundImage != historico[onde][i][j])
+				posicoes[i][j].style.backgroundImage = historico[onde][i][j];
+		}
+	}
+}
+
+
+function atualizarPontos(peca, cor)
+{
+    if (peca == "")
+        return;
+
+    function adicionarPeca(container)
+    {
+        const novaPeca = document.createElement("div");
+
+        novaPeca.classList.add("peca-capturada");
+        novaPeca.style.backgroundImage = peca;
+
+        container.appendChild(novaPeca);
+    }
+
+    if (cor === "brancas")
+    {
+        if (peca.includes(PEAO_PRETO))
+        {
+            adicionarPeca(pontosTomPeaoPr);
+            pontosBr += 1;
+        }
+        else if (peca.includes(TORRE_PRETA))
+        {
+            adicionarPeca(pontosTomTorrePr);
+            pontosBr += 5;
+        }
+        else if (peca.includes(CAVALO_PRETO))
+        {
+            adicionarPeca(pontosTomCavaloPr);
+            pontosBr += 3;
+        }
+        else if (peca.includes(BISPO_PRETO))
+        {
+            adicionarPeca(pontosTomBispoPr);
+            pontosBr += 3;
+        }
+        else if (peca.includes(RAINHA_PRETA))
+        {
+            adicionarPeca(pontosTomRainhaPr);
+            pontosBr += 9;
+        }
+		
+		placarBr.textContent = "+" + pontosBr;
+    }
+    else if (cor === "pretas")
+    {
+        if (peca.includes(PEAO_BRANCO))
+        {
+            adicionarPeca(pontosTomPeaoBr);
+            pontosPr += 1;
+        }
+        else if (peca.includes(TORRE_BRANCA))
+        {
+            adicionarPeca(pontosTomTorreBr);
+            pontosPr += 5;
+        }
+        else if (peca.includes(CAVALO_BRANCO))
+        {
+            adicionarPeca(pontosTomCavaloBr);
+            pontosPr += 3;
+        }
+        else if (peca.includes(BISPO_BRANCO))
+        {
+            adicionarPeca(pontosTomBispoBr);
+            pontosPr += 3;
+        }
+        else if (peca.includes(RAINHA_BRANCA))
+        {
+            adicionarPeca(pontosTomRainhaBr);
+            pontosPr += 9;
+        }
+		
+		placarPr.textContent = "+" + pontosPr;
+    }
+}
+
 /* Eventos */
 
 posicoes[0][0].addEventListener('click', clicouP00);
@@ -2454,3 +2625,8 @@ promoBispoBr.addEventListener('click', clicouBIB);
 promoBispoPr.addEventListener('click', clicouBIP);
 promoCavaloBr.addEventListener('click', clicouCAB);
 promoCavaloPr.addEventListener('click', clicouCAP);
+
+btnInicio.addEventListener('click', clicouInicio);
+btnMenos1 .addEventListener('click', clicouMenos1);
+btnMais1.addEventListener('click', clicouMais1);
+btnAtual.addEventListener('click', clicouAtual);
