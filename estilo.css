@@ -266,16 +266,19 @@ div#pontuacao-branco {
     bottom: -35px;
 }
 
+
 div#rainhaBr, div#rainhaPr,
 div#torreBr, div#torrePr,
 div#cavaloBr, div#cavaloPr,
 div#bispoBr, div#bispoPr,
 div#peaoBr, div#peaoPr {
-    display: flex;
+    display: none;
     flex-flow: row nowrap;
     align-items: center;
     width: auto;
-    min-width: 30px;
+    min-width: 0;
+    max-width: none;
+    flex: 0 0 auto;
     height: 30px;
     position: relative;
     background-color: transparent;
@@ -297,6 +300,7 @@ div#peaoBr, div#peaoPr {
 .peca-capturada + .peca-capturada {
     margin-left: -12px;
 }
+
 
 div.casa.em-xeque {
     background-color: rgb(194, 94, 94);
@@ -346,30 +350,62 @@ div.botao:hover{
     cursor: pointer;
 }
 
-div#moves{
+
+div#moves {
     height: min(100vw, 420px);
     background-color: var(--destaque);
     border-radius: 15px;
     padding: 1px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    color: var(--destaque-inverso);
 }
 
-div#titulo-moves{
+div#titulo-moves {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
     align-items: center;
-    border: 1px solid var(--vidro-borda);
     padding: 10px;
-    border-radius: 15px;
+    border-radius: 15px 15px 0px 0px;
+    flex-shrink: 0;
 }
 
-div#titulo-moves h2{
-    color: var(--destaque-inverso);
-}
-
-div#lista-moves{
+div#lista-moves {
     padding: 6px;
     border-radius: 15px;
+    display: grid;
+    grid-template-columns: 10% minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+    min-height: 0;
+    flex: 1;
+    align-content: start;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+div#lista-moves::-webkit-scrollbar {
+    width: 8px;
+}
+
+div#lista-moves::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+div#lista-moves::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 15px;
+}
+
+div#lista-moves:hover::-webkit-scrollbar-thumb {
+    background: var(--destaque-inverso);
+}
+
+div#lista-moves:hover {
+    scrollbar-color: var(--destaque-inverso) transparent;
 }
 
 footer {

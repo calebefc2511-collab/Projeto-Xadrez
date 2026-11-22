@@ -42,6 +42,8 @@ const pontosTomCavaloPr = document.getElementById("cavaloPr");
 const pontosTomBispoPr  = document.getElementById("bispoPr");
 const pontosTomRainhaPr = document.getElementById("rainhaPr");
 
+const listaDeMovimentos = document.getElementById("lista-moves");
+
 const placarBr = document.getElementById("placarBr");
 const placarPr = document.getElementById("placarPr");
 
@@ -77,6 +79,10 @@ const historico = [];
 
 let tamMax = 0;
 let lugAtu = -1;
+
+let Contador = 1;
+
+let info;
 
 /* Contagem de pontos */
 
@@ -279,9 +285,15 @@ function clicouInicio() {
 }
 function clicouMenos1() { 
 	if (lugAtu == 0)
-		return;
-	limparBolinha(posicoes);
-	navegar(--lugAtu); 
+	{
+		limparBolinha(posicoes);
+		navegar(lugAtu);
+	}
+	else
+	{
+		limparBolinha(posicoes);
+		navegar(--lugAtu);
+	}		
 }
 function clicouMais1()  { 
 	if (lugAtu == tamMax - 1)
@@ -300,7 +312,8 @@ atualizarHistorico ();
 
 function principal (posY, posX)
 {
-	if (promo || finalizarPartida || lugAtu !== tamMax - 1) 
+	
+	if (promo || finalizarPartida) 
 	{
 		return;
 	}
@@ -309,17 +322,15 @@ function principal (posY, posX)
 	{
 		if (movimentos[posY][posX])
 		{
-			atualizarPontos (posicoes[posY][posX].style.backgroundImage, cor);
 			
-			mover(posX, posY, posSel, posPec, posicoes);
+			info = mover(posX, posY, posSel, posPec, posicoes);
 			posMov(posY, posX, posSel, cor, enPassant, posicoes, posRei);
-			
-			atualizarHistorico();
 			
 			if (promo)
 				ativarPromo (cor, posY, posX);
 			
 			cor = cor === "brancas" ? "pretas" : "brancas";
+			
 			// Inverte o turno
 
 			// Se houve promoção, a checagem é feita depois que a peça for escolhida
@@ -328,7 +339,35 @@ function principal (posY, posX)
 				moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				atualizarXeque(cor);
 			}
-
+			
+			if (emXeque(posRei, posicoes, posPec, cor))
+			{
+				if (finalizarPartida)
+				{
+					info.tipoAtaque = "#";
+				}
+				else
+				{
+					info.tipoAtaque = "+";
+				}
+			}
+			else
+			{
+				if (finalizarPartida)
+				{
+					info.tipoAtaque = "1/2-1/2"
+				}
+			}
+			
+			if (lugAtu === tamMax - 1)
+				atualizarPontos (info.pecDepois, cor);
+			
+			if (lugAtu === tamMax - 1 && !promo)
+			{
+				atualizarHistorico();
+				atualizarLista(info);
+			}
+			
 		}
 		
 		limparBolinha(posicoes);
@@ -336,7 +375,7 @@ function principal (posY, posX)
 		movendo = false;
 		
 		limpar(movimentos);
-
+		
 	}
 
 	if (posicoes[posY][posX].style.backgroundImage === "")
@@ -464,10 +503,18 @@ function limparBolinha(posicoes) {
     }
 }
 
-function mover(posX, posY, posSel, posPec, posicoes) {
-
-	posicoes[posY][posX].style.backgroundImage = posicoes[posSel[Y]][posSel[X]].style.backgroundImage;
+function mover(posX, posY, posSel, posPec, posicoes) 
+{
+	let atacou = (posPec[B][posY][posX] || posPec[P][posY][posX]);
+	let fezRoque = 0;
+	
+	let pecAntes = posicoes[posSel[Y]][posSel[X]].style.backgroundImage;
+	let pecDepois = posicoes[posY][posX].style.backgroundImage;
+	
+	posicoes[posY][posX].style.backgroundImage = pecAntes;
 	posicoes[posSel[Y]][posSel[X]].style.backgroundImage = "";
+	
+	/* Abaixo, enPassant */
 	
 	if (posicoes[posY][posX].style.backgroundImage.includes("peao"))
 	{
@@ -476,15 +523,20 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 			if (posX != posSel[X] && !(posPec[P][posY][posX]))
 			{
 				posPec[P][posY + 1][posX] = false;
+				pecDepois = posicoes[posY + 1][posX].style.backgroundImage;
 				posicoes[posY + 1][posX].style.backgroundImage = "";
+				atacou = true;
 			}
+			
 		}
 		if (cor === "pretas")
 		{
 			if (posX != posSel[X] && !(posPec[B][posY][posX]))
 			{
 				posPec[P][posY - 1][posX] = false;
+				pecDepois = posicoes[posY - 1][posX].style.backgroundImage;
 				posicoes[posY - 1][posX].style.backgroundImage = "";
+				atacou = true;
 			}
 		}
 	}
@@ -517,6 +569,8 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 				posicoes[posY][0].style.backgroundImage = "";
 				posPec[B][posY][0] = false;
 				posPec[B][posY][posX + 1] = true;
+				fezRoque = 1;
+				
 			}
 			if (posSel[X] - posX === -2)
 			{
@@ -524,6 +578,8 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 				posicoes[posY][7].style.backgroundImage = "";
 				posPec[B][posY][7] = false;
 				posPec[B][posY][posX - 1] = true;
+				fezRoque = 2;
+				
 			}
 		}
 		if (cor === "pretas")
@@ -534,6 +590,8 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 				posicoes[posY][0].style.backgroundImage = "";
 				posPec[P][posY][0] = false;
 				posPec[P][posY][posX + 1] = true;
+				fezRoque = 1;
+				
 			}
 			if (posSel[X] - posX === -2)
 			{
@@ -541,9 +599,27 @@ function mover(posX, posY, posSel, posPec, posicoes) {
 				posicoes[posY][7].style.backgroundImage = "";
 				posPec[P][posY][7] = false;
 				posPec[P][posY][posX - 1] = true;
+				fezRoque = 2;
+
 			}
 		}
 	}
+	
+	const infoMov = 
+	{
+		antesPosX: posSel[X],
+		antesPosY: posSel[Y],
+		depoisPosX: posX,
+		depoisPosY: posY,
+		tipoAtaque: "",
+		atacou: atacou,
+		promoveu: false,
+		roque: fezRoque,
+		pecAntes : pecAntes,
+		pecDepois: pecDepois
+	}
+	
+	return infoMov;
 
 }
 
@@ -713,12 +789,52 @@ function promover (cor, tipo)
 	}
 
 	promo = false;
+	
+	cor = cor === "brancas" ? "pretas" : "brancas";
 
 	// Aqui "cor" é quem promoveu; o turno agora é do adversário
-	moniMate(posSel[X], posSel[Y], posicoes, movimentos, posPec, cor === "brancas" ? "pretas" : "brancas", enPassant);
-	atualizarXeque(cor === "brancas" ? "pretas" : "brancas");
+	moniMate(posSel[X], posSel[Y], posicoes, movimentos, posPec, cor, enPassant);
+	atualizarXeque(cor);
 	
-	atualizarHistorico();
+	info.promoveu = true;
+	
+	if (emXeque(posRei, posicoes, posPec, cor))
+	{
+		if (finalizarPartida)
+		{
+			info.tipoAtaque = "#";
+		}
+		else
+		{
+			info.tipoAtaque = "+";
+		}
+	}
+	else
+	{
+		if (finalizarPartida)
+		{
+			info.tipoAtaque = " 1/2-1/2"
+		}
+	}
+	
+	atualizarPontos(posicoes[posSel[Y]][posSel[X]].style.backgroundImage, cor)
+	
+	if (cor === "brancas")
+	{
+		pontosBr--;
+		pontosPr++;
+	}
+	if (cor === "pretas")
+	{
+		pontosPr--;
+		pontosBr++;
+	}
+	
+	if (lugAtu === tamMax - 1)
+	{
+		atualizarHistorico();
+		atualizarLista(info);
+	}
 
 }
 
@@ -731,8 +847,6 @@ function peao  (posX, posY, posicoes, movimentos, posPec, cor, enPassant, posRei
 
 	if(cor === "pretas")
 	{
-
-
 
 		if(condicaoPeao(NposX, NposY+1, posPec, cor))
 		{
@@ -2414,16 +2528,14 @@ function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 	limpar(movimentos);
 
 	if (achou)
-
+	{
+		document.getElementById("mensagem-fim").style.display = "none";
 		return;
+	}
 
 	// Sem nenhum movimento legal: só é xeque-mate se o rei estiver em xeque
-	if (emXeque(posRei, posicoes, posPec, cor))
-	{
-
-		finalizarPartida = true;
-
-	}
+	
+	finalizarPartida = true;
 
 	document.getElementById("mensagem-fim").style.display = "flex";
 	document.getElementById("texto-fim").textContent = "Xeque-mate!";
@@ -2436,14 +2548,24 @@ function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 
 function atualizarHistorico () 
 {
-	let momento = new Array(8);
+	const momento =  {
+		tabuleiro: [],
+		posPec: structuredClone(posPec),
+		posRei: structuredClone(posRei),
+		roque: structuredClone(roque),
+		enPassant: structuredClone(enPassant),
+		cor: cor,
+		finalizarPartida: finalizarPartida
+	};
+	
+	momento.tabuleiro = new Array(8);
 	
 	for (let i = 0; i < 8; i++)
 	{
-		momento[i] = new Array(8);
+		momento.tabuleiro[i] = new Array(8);
 		for (let j = 0; j < 8; j++)
 		{
-			momento[i][j] = posicoes[i][j].style.backgroundImage;
+			momento.tabuleiro[i][j] = posicoes[i][j].style.backgroundImage;
 		}
 	}
 	
@@ -2455,16 +2577,28 @@ function atualizarHistorico ()
 function navegar (onde)
 {
 	limpar(movimentos);
+	movendo = false;
+	
+	posPec = structuredClone(historico[onde].posPec);
+	posRei = structuredClone(historico[onde].posRei);
+	roque = structuredClone(historico[onde].roque);
+	enPassant = structuredClone(historico[onde].enPassant);
+	cor = historico[onde].cor;
+	finalizarPartida = historico[onde].finalizarPartida;
+	
 	for (let i = 0; i < 8; i++)
 	{
 		for (let j = 0; j < 8; j++)
 		{
-			if (posicoes[i][j].style.backgroundImage != historico[onde][i][j])
-				posicoes[i][j].style.backgroundImage = historico[onde][i][j];
+			if (posicoes[i][j].style.backgroundImage != historico[onde].tabuleiro[i][j])
+				posicoes[i][j].style.backgroundImage = historico[onde].tabuleiro[i][j];
 		}
 	}
+	
+	moniMate(0, 0, posicoes, movimentos, posPec, cor, enPassant)
+	atualizarXeque(cor);
+	
 }
-
 
 function atualizarPontos(peca, cor)
 {
@@ -2479,68 +2613,269 @@ function atualizarPontos(peca, cor)
         novaPeca.style.backgroundImage = peca;
 
         container.appendChild(novaPeca);
+		container.style.display = "flex";
     }
 
     if (cor === "brancas")
     {
-        if (peca.includes(PEAO_PRETO))
-        {
-            adicionarPeca(pontosTomPeaoPr);
-            pontosBr += 1;
-        }
-        else if (peca.includes(TORRE_PRETA))
-        {
-            adicionarPeca(pontosTomTorrePr);
-            pontosBr += 5;
-        }
-        else if (peca.includes(CAVALO_PRETO))
-        {
-            adicionarPeca(pontosTomCavaloPr);
-            pontosBr += 3;
-        }
-        else if (peca.includes(BISPO_PRETO))
-        {
-            adicionarPeca(pontosTomBispoPr);
-            pontosBr += 3;
-        }
-        else if (peca.includes(RAINHA_PRETA))
-        {
-            adicionarPeca(pontosTomRainhaPr);
-            pontosBr += 9;
-        }
 		
-		placarBr.textContent = "+" + pontosBr;
-    }
-    else if (cor === "pretas")
-    {
-        if (peca.includes(PEAO_BRANCO))
+   if (peca.includes("peao"))
         {
             adicionarPeca(pontosTomPeaoBr);
             pontosPr += 1;
+			pontosBr -= 1;
         }
-        else if (peca.includes(TORRE_BRANCA))
+        else if (peca.includes("torre"))
         {
             adicionarPeca(pontosTomTorreBr);
             pontosPr += 5;
+			pontosBr -= 5;
         }
-        else if (peca.includes(CAVALO_BRANCO))
+        else if (peca.includes("cavalo"))
         {
             adicionarPeca(pontosTomCavaloBr);
             pontosPr += 3;
+			pontosBr -= 3;
         }
-        else if (peca.includes(BISPO_BRANCO))
+        else if (peca.includes("bispo"))
         {
             adicionarPeca(pontosTomBispoBr);
             pontosPr += 3;
+			pontosBr -= 3;
         }
-        else if (peca.includes(RAINHA_BRANCA))
+        else if (peca.includes("rainha"))
         {
             adicionarPeca(pontosTomRainhaBr);
             pontosPr += 9;
+			pontosBr -= 9;
         }
 		
-		placarPr.textContent = "+" + pontosPr;
+	}
+
+	if (cor === "pretas")
+    {
+		
+        if (peca.includes("peao"))
+        {
+            adicionarPeca(pontosTomPeaoPr);
+            pontosBr += 1;
+			pontosPr -= 1;
+        }
+        else if (peca.includes("torre"))
+        {
+            adicionarPeca(pontosTomTorrePr);
+            pontosBr += 5;
+			pontosPr -= 5;
+        }
+        else if (peca.includes("cavalo"))
+        {
+            adicionarPeca(pontosTomCavaloPr);
+            pontosBr += 3;
+			pontosPr -= 3;
+        }
+        else if (peca.includes("bispo"))
+        {
+            adicionarPeca(pontosTomBispoPr);
+            pontosBr += 3;
+			pontosPr -= 3;
+        }
+        else if (peca.includes("rainha"))
+        {
+            adicionarPeca(pontosTomRainhaPr);
+            pontosBr += 9;
+			pontosPr -= 9;
+        }
+		
     }
+
+	if (pontosBr > 0)
+		placarBr.textContent = "+" + pontosBr;
+	else
+	{
+		if (pontosBr != 0)
+			placarBr.textContent = pontosBr;
+		else
+			placarBr.textContent = "";
+	}
+	if (pontosPr > 0)
+		placarPr.textContent = "+" + pontosPr;
+	else
+	{
+		if (pontosPr != 0)
+			placarPr.textContent = + pontosPr;
+		else
+			placarPr.textContent = "";
+	}
+
+}
+
+function atualizarLista(info)
+{
+	/* Essa função é responsável por atualizar a lista de movimentos */
+	
+	let texto = "";
+	
+	let classe = info.cor === "brancas" ? "movBrancas" : "movPretas";
+	
+	if (cor === "pretas")
+	{
+		// Parte que numera a rodada
+		texto += "<div class='numero'> <span>" + Contador++ + ". </span> </div>";
+	}
+	
+	texto += "<div class='"+classe+"'> <span>";
+	// Parte que declara a estrutura inicial do movimento
+	
+	switch(info.roque)
+	{
+	// para saber se é normal, roque longo ou roque curto
+		case 0:
+			
+			texto += pecaParaLet(info.pecAntes);
+			
+			if (info.pecAntes.includes("torre"))
+			{
+				if (info.antesPosX == info.depoisPosX)
+				{
+					texto += 8 - info.antesPosY;
+				}
+				else
+				{
+					texto += posParaLet(info.antesPosX);
+				}
+			}
+			// Coloca uma das posições para identificar qual torre moveu
+			
+			if (info.atacou)
+			{
+				if (info.pecAntes.includes("peao"))
+				{
+					texto += posParaLet(info.antesPosX);
+				}
+				texto += "x";
+			}
+			// Coloca a coluna do peão caso tome
+			
+			texto += posParaLet(info.depoisPosX);
+			
+			texto += (7 - info.depoisPosY + 1);
+			
+			if (info.promoveu)
+			{
+				texto += "=";
+				
+				texto += pecaParaLet(posicoes[info.depoisPosY][info.depoisPosX].style.backgroundImage);
+			}
+			// Coloca para o que promoveu
+			
+		break;
+		case 1:
+			texto += "O-";
+			// Roque longo
+		case 2:
+			texto += "O-O";
+			// Roque curto
+	}
+	
+	texto += info.tipoAtaque;
+	// Mostra se deu xeque, xeque-mate ou empate
+	
+	texto += "</span> </div>"
+	// Fecha a estrutura
+	
+	listaDeMovimentos.innerHTML += texto;
+	// Adiciona ao html
+	
+}
+
+function pecaParaLet (peca)
+{
+	/* Transforma uma peça em uma letra (ou nada para o peão) */
+	if(peca.includes(PEAO_BRANCO))
+	{
+		return "";
+	}
+	if(peca.includes(PEAO_PRETO))
+	{
+		return "";
+	}
+	
+	if(peca.includes(TORRE_BRANCA))
+	{
+		return "T";
+	}
+	if(peca.includes(TORRE_PRETA))
+	{
+		return "T";
+	}
+	
+	if(peca.includes(CAVALO_BRANCO))
+	{
+		return "C";
+	}
+	if(peca.includes(CAVALO_PRETO))
+	{
+		return "C";
+	}
+	
+	if(peca.includes(BISPO_BRANCO))
+	{
+		return "B";
+	}
+	if(peca.includes(BISPO_PRETO))
+	{
+		return "B";
+	}
+	
+	if(peca.includes(RAINHA_BRANCA))
+	{
+		return "D";
+	}
+	if(peca.includes(RAINHA_PRETA))
+	{
+		return "D";
+	}
+	
+	if(peca.includes(REI_BRANCO))
+	{
+		return "R";
+	}
+	if(peca.includes(REI_PRETO))
+	{
+		return "R";
+	}
+}
+
+function posParaLet (posicao)
+{
+	/* Transforma uma posição em sua respectiva letra */
+	switch (posicao)
+	{
+		case 0 :
+			return "a";
+			break;
+		case 1 :
+			return "b";
+			break;
+		case 2 :
+			return "c";
+			break;
+		case 3 :
+			return "d";
+			break;
+		case 4 :
+			return "e";
+			break;
+		case 5 : 
+			return "f";
+			break;
+		case 6 :
+			return "g";
+			break;
+		case 7 :
+			return "h";
+			break;
+	}
 }
 
 /* Eventos */
