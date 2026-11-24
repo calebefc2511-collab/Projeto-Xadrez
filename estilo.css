@@ -247,7 +247,6 @@ div#pontuacao-preto,
 div#pontuacao-branco {
     display: flex;
     flex-flow: row nowrap;
-    align-items: center;
     justify-content: flex-end;
     position: absolute;
     left: 0;
@@ -256,6 +255,14 @@ div#pontuacao-branco {
     padding: 2px 2px;
     gap: 2px;
     z-index: 10;
+}
+
+div#pontuacao-preto {
+    align-items: flex-start;
+}
+
+div#pontuacao-branco {
+    align-items: flex-end;
 }
 
 div#pontuacao-preto {
@@ -274,31 +281,29 @@ div#bispoBr, div#bispoPr,
 div#peaoBr, div#peaoPr {
     display: none;
     flex-flow: row nowrap;
-    align-items: center;
-    width: auto;
-    min-width: 0;
-    max-width: none;
-    flex: 0 0 auto;
-    height: 30px;
+    align-items: flex-end; 
+    height: 26px;
+    aspect-ratio: 1 / 1;
     position: relative;
     background-color: transparent;
     background-repeat: no-repeat;
     background-position: left center;
-    background-size: 30px 30px;
+    background-size: 26px 26px;
     overflow: visible;
 }
 
 .peca-capturada {
     flex-shrink: 0;
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     background-repeat: no-repeat;
     background-position: center;
     background-size: 160%;
+    transform: translateY(2px);
 }
 
 .peca-capturada + .peca-capturada {
-    margin-left: -12px;
+    margin-left: -16px;
 }
 
 
