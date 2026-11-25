@@ -313,6 +313,8 @@ atualizarHistorico ();
 function principal (posY, posX)
 {
 	
+	let i, j;
+
 	if (promo || finalizarPartida) 
 	{
 		return;
@@ -336,6 +338,7 @@ function principal (posY, posX)
 			// Se houve promoção, a checagem é feita depois que a peça for escolhida
 			if (!promo)
 			{
+				
 				moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				atualizarXeque(cor);
 			}
@@ -2527,22 +2530,130 @@ function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 
 	limpar(movimentos);
 
-	if (achou)
+	if(moniMaterial(posicoes, movimentos, posPec, cor, enPassant))
 	{
-		document.getElementById("mensagem-fim").style.display = "none";
-		return;
+
+		finalizarPartida = true;
+
+		document.getElementById("mensagem-fim").style.display = "flex";
+		document.getElementById("texto-fim").textContent = "Empate!";
+
+	}	
+	else
+	{
+
+		if (achou)
+		{
+			document.getElementById("mensagem-fim").style.display = "none";
+			return;
+		}
+
+		// Sem nenhum movimento legal: só é xeque-mate se o rei estiver em xeque
+		
+		finalizarPartida = true;
+
+		if (emXeque(posRei, posicoes, posPec, cor))
+		{
+			document.getElementById("mensagem-fim").style.display = "flex";
+			document.getElementById("texto-fim").textContent = "Xeque-mate!";
+			if(cor === "brancas")
+				document.getElementById("detalhe-fim").textContent = "As pretas venceram!";
+			else
+				document.getElementById("detalhe-fim").textContent = "As brancas venceram!";
+		}
+		
+		else
+		{
+
+			document.getElementById("mensagem-fim").style.display = "flex";
+			document.getElementById("texto-fim").textContent = "Afogamento!";
+
+		}
+
 	}
 
-	// Sem nenhum movimento legal: só é xeque-mate se o rei estiver em xeque
-	
-	finalizarPartida = true;
+}
 
-	document.getElementById("mensagem-fim").style.display = "flex";
-	document.getElementById("texto-fim").textContent = "Xeque-mate!";
-	if(cor === "brancas")
-		document.getElementById("detalhe-fim").textContent = "As pretas venceram!";
-	else
-		document.getElementById("detalhe-fim").textContent = "As brancas venceram!";
+function moniMaterial(posicoes, movimentos, posPec, cor, enPassant)
+{
+
+	let i, j;
+	let contBb=0, contBp=0, contCb=0, contCp=0, contPeao=0;
+
+	for(i=0; i<8; i++)
+	{
+
+		for(j=0; j<8; j++)
+		{
+
+			if(posicoes[i][j].style.backgroundImage.includes(BISPO_BRANCO))
+			{
+
+				contBb++;
+
+			}
+
+			if(posicoes[i][j].style.backgroundImage.includes(BISPO_PRETO))
+			{
+
+				contBp++;
+
+			}
+
+			if(posicoes[i][j].style.backgroundImage.includes(CAVALO_BRANCO))
+			{
+
+				contCb++;
+
+			}
+
+			if(posicoes[i][j].style.backgroundImage.includes(CAVALO_PRETO))
+			{
+
+				contCp++;
+
+			}
+
+			if(posicoes[i][j].style.backgroundImage.includes(TORRE_BRANCA) || posicoes[i][j].style.backgroundImage.includes(TORRE_PRETA))
+			{
+
+				return false;
+
+			}
+
+			if(posicoes[i][j].style.backgroundImage.includes(RAINHA_BRANCA) || posicoes[i][j].style.backgroundImage.includes(RAINHA_PRETA))
+			{
+
+				return false;
+
+			}
+
+			if(posicoes[i][j].style.backgroundImage.includes(PEAO_BRANCO) || posicoes[i][j].style.backgroundImage.includes(PEAO_PRETO))
+			{
+
+				contPeao++;
+
+			}
+
+		}
+
+	}
+
+	if((2<=contBb || 2<=contBp|| 2<=contCb || 2<=contCp) || 0<contPeao)
+	{
+
+		return false;
+
+	}
+
+	if((contBb && contCb) || (contBp && contCp))
+	{
+
+		return false;
+
+	}
+
+	return true;
 
 }
 
