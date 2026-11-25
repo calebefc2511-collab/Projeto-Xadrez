@@ -80,7 +80,10 @@ const historico = [];
 let tamMax = 0;
 let lugAtu = -1;
 
-let Contador = 1;
+let contador = 1;
+
+let cont50MovB = 0;
+let cont50MovP = 0;
 
 let info;
 
@@ -342,6 +345,45 @@ function principal (posY, posX)
 				moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant);
 				atualizarXeque(cor);
 			}
+
+			if (cor === "brancas")
+			{
+				if (info.pecDepois === "" && !info.pecAntes.includes("peao"))
+				{
+					cont50MovP++;
+				}
+				else 
+				{
+					cont50MovP = 0;
+				}
+			}
+			if (cor === "pretas")
+			{
+				if (info.pecDepois === "" && !info.pecAntes.includes("peao"))
+				{
+					cont50MovB++;
+				}
+				else 
+				{
+					cont50MovB = 0;
+				}
+			}
+
+			if (cont50MovB === 50 || cont50MovP === 50)
+			{
+				finalizarPartida = true;
+				
+				document.getElementById("mensagem-fim").style.display = "flex";
+				document.getElementById("texto-fim").textContent = "Empate!";
+				document.getElementById("detalhe-fim").textContent = "Pela regra dos 50 movimentos";
+			}
+
+			if (lugAtu === tamMax - 1 && !promo)
+			{
+				atualizarHistorico();
+			}
+
+			verificarRepeticao(historico);
 			
 			if (emXeque(posRei, posicoes, posPec, cor))
 			{
@@ -367,7 +409,6 @@ function principal (posY, posX)
 			
 			if (lugAtu === tamMax - 1 && !promo)
 			{
-				atualizarHistorico();
 				atualizarLista(info);
 			}
 			
@@ -2566,7 +2607,8 @@ function moniMate(posX, posY, posicoes, movimentos, posPec, cor, enPassant)
 		{
 
 			document.getElementById("mensagem-fim").style.display = "flex";
-			document.getElementById("texto-fim").textContent = "Afogamento!";
+			document.getElementById("texto-fim").textContent = "Empate!";
+			document.getElementById("detalhe-fim").textContent = "Por afogamento";
 
 		}
 
@@ -2666,6 +2708,8 @@ function atualizarHistorico ()
 		roque: structuredClone(roque),
 		enPassant: structuredClone(enPassant),
 		cor: cor,
+		cont50MovB: cont50MovB,
+		cont50MovP: cont50MovP,
 		finalizarPartida: finalizarPartida
 	};
 	
@@ -2694,6 +2738,8 @@ function navegar (onde)
 	posRei = structuredClone(historico[onde].posRei);
 	roque = structuredClone(historico[onde].roque);
 	enPassant = structuredClone(historico[onde].enPassant);
+	cont50MovB = historico[onde].cont50MovB;
+	cont50MovP = historico[onde].cont50MovP;
 	cor = historico[onde].cor;
 	finalizarPartida = historico[onde].finalizarPartida;
 	
@@ -2831,7 +2877,7 @@ function atualizarLista(info)
 	if (cor === "pretas")
 	{
 		// Parte que numera a rodada
-		texto += "<div class='numero'> <span>" + Contador++ + ". </span> </div>";
+		texto += "<div class='numero'> <span>" + contador++ + ". </span> </div>";
 	}
 	
 	texto += "<div class='"+classe+"'> <span>";
@@ -2986,6 +3032,61 @@ function posParaLet (posicao)
 		case 7 :
 			return "h";
 			break;
+	}
+}
+
+function verificarRepeticao(historico)
+{
+	let i;
+	const VER_TURNO = lugAtu % 2;
+
+	if (lugAtu < 5) return;
+
+	const estadoAtual = structuredClone(historico[lugAtu]);
+
+	function matIgual (mat1, mat2)
+	{
+		for (let i = 0; i < mat1.length; i++)
+		{
+			for (let j = 0; j < mat1[i].length; j++)
+			{
+				if (mat1[i][j] !== mat2[i][j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	contRepeticoes = 0;
+
+	for (i = historico.length - 2; i >= 0; i--)
+	{
+
+		if (i % 2 == VER_TURNO)
+		{
+			if (matIgual(historico[i].tabuleiro,estadoAtual.tabuleiro))
+			{
+				if (matIgual(historico[i].roque,estadoAtual.roque))
+				{
+					if (matIgual(historico[i].enPassant,estadoAtual.enPassant))
+					{
+						contRepeticoes++;
+					}
+				}
+			}
+		}
+	}
+
+	if (contRepeticoes >= 2)
+	{
+		finalizarPartida = true;
+	
+		document.getElementById("mensagem-fim").style.display = "flex";
+		document.getElementById("texto-fim").textContent = "Empate!";
+		document.getElementById("detalhe-fim").textContent = "Por repetição de movimentos";
+		
 	}
 }
 
